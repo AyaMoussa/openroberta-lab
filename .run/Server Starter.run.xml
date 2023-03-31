@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Server Starter" type="Application" factoryName="Application">
+    <option name="MAIN_CLASS_NAME" value="de.fhg.iais.roberta.main.ServerStarter" />
+    <module name="OpenRobertaServer" />
+    <option name="PROGRAM_PARAMETERS" value="-d server.staticresources.dir=./OpenRobertaServer/staticResources -d robot.crosscompiler.resourcebase=../ora-cc-rsc" />
+    <option name="WORKING_DIRECTORY" value="$ProjectFileDir$" />
+    <extension name="coverage">
+      <pattern>
+        <option name="PATTERN" value="de.fhg.iais.roberta.main.*" />
+        <option name="ENABLED" value="true" />
+      </pattern>
+    </extension>
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>

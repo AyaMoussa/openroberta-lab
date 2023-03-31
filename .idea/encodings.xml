@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/OpenRobertaRobot/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/OpenRobertaRobot/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/OpenRobertaServer/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotArdu/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotArdu/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotCyberpi/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotCyberpi/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotEV3/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotEdison/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotEdison/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotMbed/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotMbed/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotNAO/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotNAO/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotNXT/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotNXT/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotRobotino/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotRobotino/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotSpike/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotSpike/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotThymio/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotThymio/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotWeDo/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/RobotWeDo/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+  </component>
+</project>
