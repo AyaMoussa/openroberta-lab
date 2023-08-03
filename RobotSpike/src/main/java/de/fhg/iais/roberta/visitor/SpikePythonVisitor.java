@@ -144,7 +144,7 @@ public final class SpikePythonVisitor extends AbstractPythonVisitor implements I
 
     @Override
     public Void visitMotorDiffOnAction(MotorDiffOnAction motorDiffOnAction) {
-        String end = "";
+        /*String end = "";
         if ( motorDiffOnAction.regulation ) {
             src.add("diff_drive.start(0, ");
             end = ")";
@@ -164,7 +164,22 @@ public final class SpikePythonVisitor extends AbstractPythonVisitor implements I
             default:
                 throw new DbcException("Invalid drive direction: " + motorDiffOnAction.direction);
         }
-        src.add(end);
+        src.add(end);*/
+        
+        this.src.add("robot.drive(");
+        switch ( motorDiffOnAction.direction ) {
+            case "BACKWARD":
+                src.add("-(");
+                motorDiffOnAction.power.accept(this);
+                src.add(")");
+                break;
+            case "FORWARD":
+                motorDiffOnAction.power.accept(this);
+                break;
+            default:
+                throw new DbcException("Invalid drive direction: " + motorDiffOnAction.direction);
+        }
+        this.src.add(")");
         return null;
     }
 
@@ -370,8 +385,8 @@ public final class SpikePythonVisitor extends AbstractPythonVisitor implements I
 
     @Override
     public Void visitMotorDiffStopAction(MotorDiffStopAction motorDiffStopAction) {
-        this.src.add("diff_drive.set_stop_action('");
-        switch ( motorDiffStopAction.control ) {
+        //this.src.add("diff_drive.set_stop_action('");
+        /*switch ( motorDiffStopAction.control ) {
             case "BRAKE":
                 this.src.add("brake");
                 break;
@@ -380,10 +395,12 @@ public final class SpikePythonVisitor extends AbstractPythonVisitor implements I
                 break;
             default:
                 throw new DbcException("Invalid stop control: " + motorDiffStopAction.control);
-        }
-        ;
-        this.src.add("')").nlI();
-        this.src.add("diff_drive.stop()");
+        };*/
+        
+        //this.src.add("')").nlI();
+        //this.src.add("diff_drive.stop()");
+        
+        this.src.add("robot.stop()");
         return null;
     }
 
@@ -629,9 +646,9 @@ public final class SpikePythonVisitor extends AbstractPythonVisitor implements I
 
     @Override
     public Void visitWaitTimeStmt(WaitTimeStmt waitTimeStmt) {
-        this.src.add("wait_for_seconds(");
+        this.src.add("wait(");
         waitTimeStmt.time.accept(this);
-        this.src.add("/1000)");
+        this.src.add("(");
         return null;
     }
 
@@ -641,12 +658,18 @@ public final class SpikePythonVisitor extends AbstractPythonVisitor implements I
             return;
         }
         UsedHardwareBean usedHardwareBean = this.getBean(UsedHardwareBean.class);
-        this.src.add("import spike").nlI();
+        this.src.add("from pybricks.hubs import PrimeHub").nlI();
         this.src.add("import math").nlI();
+        
+        //TODO INTEGRATE HARDWARE CHECK
+        this.src.add("from pybricks.pupdevices import Motor, ColorSensor, UltrasonicSensor, ForceSensor").nlI();
+        this.src.add("from pybricks.parameters import Button, Color, Direction, Port, Side, Stop").nlI();
+        this.src.add("from pybricks.tools import wait, StopWatch").nlI();
+
+
         if ( usedHardwareBean.isActorUsed(C.RANDOM) || usedHardwareBean.isActorUsed(C.RANDOM_DOUBLE) ) {
             this.src.add("import random").nlI();
         }
-        this.src.add("from spike.control import wait_for_seconds, wait_until");
         if ( usedHardwareBean.isSensorUsed(SC.TIMER) ) {
             this.src.add(", Timer");
         }
@@ -654,14 +677,19 @@ public final class SpikePythonVisitor extends AbstractPythonVisitor implements I
             nlIndent();
         }
         if ( usedHardwareBean.isActorUsed(SC.DIFFERENTIALDRIVE) ) {
+            this.src.add("from pybricks.robotics import DriveBase").nlI();
+            
             ConfigurationComponent diffDrive = this.configurationAst.optConfigurationComponentByType("DIFFERENTIALDRIVE");
             String leftPort = diffDrive.getComponentProperties().get("MOTOR_L");
             String rightPort = diffDrive.getComponentProperties().get("MOTOR_R");
             nlIndent();
-            this.src.add("TRACKWIDTH = ").add(diffDrive.getComponentProperties().get("BRICK_TRACK_WIDTH")).nlI();
-            this.src.add("diff_drive = spike.MotorPair('").add(leftPort).add("', '").add(rightPort).add("')").nlI();
-            this.src.add("diff_drive.set_motor_rotation(").add(diffDrive.getComponentProperties().get("BRICK_WHEEL_DIAMETER")).add(" * math.pi, 'cm')");
+            this.src.add("robot = DriveBase( " +
+                "Motor(Port.", leftPort, "), " +
+                "Motor(Port.", rightPort, "), " +
+                "wheel_diameter=", diffDrive.getComponentProperties().get("BRICK_WHEEL_DIAMETER"),
+                ", axle_track=", diffDrive.getComponentProperties().get("BRICK_TRACK_WIDTH"), ")");
         }
+        
         if ( usedHardwareBean.isActorUsed(SC.MOTOR) ) {
             usedHardwareBean.getUsedActors().stream().filter(usedActor -> usedActor.getType().equals("MOTOR")).forEach(motor -> {
                 nlIndent();
