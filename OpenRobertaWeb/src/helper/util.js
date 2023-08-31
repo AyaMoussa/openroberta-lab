@@ -497,6 +497,20 @@ function download(fileName, content) {
     }
 }
 
+function downloadFromUrl(fileName, url) {
+    var downloadLink;
+    downloadLink = document.createElement('a');
+    downloadLink.download = fileName;
+    downloadLink.innerHTML = 'Download File';
+    downloadLink.href = url;
+    downloadLink.onclick = destroyClickedElement;
+    downloadLink.style.display = 'none';
+    document.body.appendChild(downloadLink);
+    setTimeout(function () {
+        downloadLink.click();
+    }, 0);
+}
+
 function getHashFrom(string) {
     var hash = 0;
     for (var i = 0; i < string.length; i++) {
@@ -1130,6 +1144,7 @@ export {
     sgn,
     getBasename,
     download,
+    downloadFromUrl,
     getHashFrom,
     countBlocks,
     isLocalStorageAvailable,
