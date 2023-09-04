@@ -3361,3 +3361,8 @@ input::-webkit-inner-spin-button {
 input[type="number"] {
     -moz-appearance: textfield;
 }
+
+.nn-input {
+    border: 2px solid #23b6ac;
+    padding: 6px;
+}

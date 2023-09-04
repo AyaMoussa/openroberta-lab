@@ -265,6 +265,12 @@ limitations under the License.
                     <a data-toggle='tab' id='tabNN' href='#nn'> <span lkey='Blockly.Msg.TAB_NN' class='menuTab'>Neural Network</span>&nbsp;<span
                         id='tabNnName'>NEPOnn</span></a>
                 </li>
+                <li id='tabNNexplore' style='display: none;'>
+                    <a data-toggle='tab' id='tabNNexp' href='#nnExp'> <span lkey='NEURAL NETWORK - EXPLORE' class='menuTab'>Neural Network - Explore</span></a>
+                </li>
+                <li id='tabNNlearn' style='display: none;'>
+                    <a data-toggle='tab' id='tabNNlrn' href='#nnLrn'> <span lkey='NEURAL NETWORK - LEARN' class='menuTab'>Neural Network - Learn</span></a>
+                </li>
                 <li class='hidden'><a data-toggle='tab' id='tabProgList' href='#progList'>Listing of programs</a></li>
                 <li class='hidden'><a data-toggle='tab' id='tabConfList' href='#confList'>Listing of configurations</a></li>
                 <li class='hidden'><a data-toggle='tab' id='tabLogList' href='#logList'>Logging</a></li>
@@ -661,9 +667,20 @@ limitations under the License.
                         </select>
                     </div>
                 </div>
-                <div id='nn-show-math-all' class='nn-control'>
+                <div id='nn-show-math-all' style='display: none;' class='nn-control'>
                     <span id='nn-show-math-label' class='nn-bold'></span>
                     <div id='nn-show-math'></div>
+                </div>
+                <div id='nn-get-shape-all' class='nn-control'>
+                    <span id='nn-get-shape-label' class='nn-bold'></span>
+                    <div>
+                        <input class='nn-input' id='nn-get-shape' />
+                        <!--                        <span class='nn-btn nn-type-button'>-->
+                        <!--                            <button class='nn-btn'>-->
+                        <!--                                <span class='typcn typcn-tick'></span>-->
+                        <!--                            </button>-->
+                        <!--                        </span>-->
+                    </div>
                 </div>
                 <div class='nn-control'>
                     <span id='nn-show-precision-label' class='nn-bold'></span>
@@ -743,6 +760,33 @@ limitations under the License.
                 </div>
             </div>
         </div>
+        <!--        <div id='nnExp' style='display: none;' class='tab-pane fade'>-->
+        <!--            <button class='nn-btn' id='goto-sim'>-->
+        <!--                <span class='typcn typcn-simulation'></span>-->
+        <!--            </button>-->
+        <!--            <div id='nn-top-controls'>-->
+        <!--                <div id='nn-show-math-all' style='display: none;' class='nn-control'>-->
+        <!--                    <span id='nn-show-math-label' class='nn-bold'></span>-->
+        <!--                    <div id='nn-show-math'></div>-->
+        <!--                </div>-->
+        <!--            </div>-->
+        <!--        </div>-->
+        <!--        <div id='nnLrn' style='display: none;' class='tab-pane fade'>-->
+        <!--            <button class='nn-btn' id='goto-sim'>-->
+        <!--                <span class='typcn typcn-simulation'></span>-->
+        <!--            </button>-->
+        <!--            <div id='nn-top-controls'>-->
+        <!--                <div class="nn-control">-->
+        <!--                    <span id="nn-regularization-label" class="nn-bold"></span>-->
+        <!--                    <div class="select">-->
+        <!--                        <select id="regularizations">-->
+        <!--                            <option value="none">None</option>-->
+        <!--                            <option value="L1">L1</option>-->
+        <!--                            <option value="L2">L2</option>-->
+        <!--                        </select>-->
+        <!--                </div>-->
+        <!--            </div>-->
+        <!--        </div>-->
     </div>
 
     <!--  ################## END TABS ################## -->

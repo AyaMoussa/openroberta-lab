@@ -104,6 +104,40 @@ export async function runNNEditor(hasSim: boolean) {
         drawNetworkUI(network);
     });
 
+    D3.select('#nn-get-shape').on('change', function () {
+        let val = this.value
+            .trim()
+            .split(',')
+            .filter((x) => !isNaN(x))
+            .map((x) => {
+                return Number(x) >= 10 ? 9 : Number(x);
+            });
+        {
+            state.inputs = [];
+            if (val[0] >= 9) {
+                return;
+            }
+            for (let i = 0; i < val[0]; i++) {
+                const id = selectDefaultId();
+                state.inputs.push(id);
+            }
+        }
+        {
+            state.outputs = [];
+            if (val[val.length - 1] >= 9) {
+                return;
+            }
+            for (let i = 0; i < val[val.length - 1]; i++) {
+                const id = selectDefaultId();
+                state.outputs.push(id);
+            }
+        }
+        state.networkShape = val.slice(1, -1);
+        state.numHiddenLayers = state.networkShape.length;
+        hideAllCards();
+        reconstructNNIncludingUI();
+    });
+
     // Listen for css-responsive changes and redraw the svg network.
     window.addEventListener('resize', () => {
         hideAllCards();
@@ -141,6 +175,7 @@ function drawNetworkUI(network: Network): void {
     $('#nn-focus [value="CLICK_NODE"]').text(MSG.get('NN_CLICK_NODE'));
     $('#nn-focus [value="SHOW_ALL"]').text(MSG.get('NN_SHOW_ALL'));
     $('#nn-show-math-label').text(MSG.get('NN_SHOW_MATH'));
+    $('#nn-get-shape-label').text(MSG.get('shape'));
     $('#nn-show-precision-label').text(MSG.get('NN_SHOW_PRECISION'));
 
     let layerKey = state.numHiddenLayers === 1 ? 'NN_HIDDEN_LAYER' : 'NN_HIDDEN_LAYERS';
@@ -388,16 +423,6 @@ function drawNetworkUI(network: Network): void {
         return node.offsetHeight + node.offsetTop;
     }
 
-    function selectDefaultId(): string {
-        let i = 1;
-        while (true) {
-            let id = 'n' + i++;
-            if (state.inputs.indexOf(id) <= -1 && state.outputs.indexOf(id) <= -1) {
-                return id;
-            }
-        }
-    }
-
     function addPlusMinusControl(x: number, layerIdx: number) {
         let div = D3.select('#nn-network').append('div').classed('nn-plus-minus-neurons', true).style('left', `${x}px`);
         let isInputLayer = layerIdx == 0;
@@ -483,6 +508,10 @@ function drawNetworkUI(network: Network): void {
             .on('click', callbackMinus)
             .append('span')
             .attr('class', 'typcn typcn-minus');
+
+        let shapeToShow = [state.inputs.length, ...state.networkShape, state.outputs.length];
+        $('#nn-get-shape').val(`${shapeToShow.toString()}`);
+
         if (isInputLayer) {
             let button = firstRow.append('button');
             button
@@ -783,6 +812,16 @@ function updateUI() {
             D3.select('#nn-show-math').html(focusNode.genMath(state.activationKey));
         } else {
             D3.select('#nn-show-math').html('');
+        }
+    }
+}
+
+function selectDefaultId(): string {
+    let i = 1;
+    while (true) {
+        let id = 'n' + i++;
+        if (state.inputs.indexOf(id) <= -1 && state.outputs.indexOf(id) <= -1) {
+            return id;
         }
     }
 }

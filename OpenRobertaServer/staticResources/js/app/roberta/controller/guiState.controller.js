@@ -403,6 +403,9 @@ define(["require", "exports", "util", "message", "guiState.model", "progHelp.con
         }
         if (GUISTATE.gui.nn) {
             $('#tabNNctxt').show();
+            // $('#tabNNdefine').show();
+            $('#tabNNexplore').show();
+            $('#tabNNlearn').show();
             $('#menuTabNNctxt').show();
             $('#nn-activations').empty();
             $.each(GUISTATE.gui.nnActivations, function (_, item) {
@@ -412,11 +415,18 @@ define(["require", "exports", "util", "message", "guiState.model", "progHelp.con
                 }));
             });
             $('#nn').show();
+            $('#nnExp').show();
+            $('#nnLrn').show();
         }
         else {
             $('#tabNNctxt').hide();
+            // $('#tabNNdefine').hide();
+            $('#tabNNexplore').hide();
+            $('#tabNNlearn').hide();
             $('#menuTabNNctxt').hide();
             $('#nn').hide();
+            $('#nnExp').hide();
+            $('#nnLrn').hide();
         }
         if (getHasRobotStopButton(robot)) {
             GUISTATE.gui.blocklyWorkspace && GUISTATE.gui.blocklyWorkspace.robControls.showStopProgram();
