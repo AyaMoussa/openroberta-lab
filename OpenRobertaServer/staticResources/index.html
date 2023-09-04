@@ -238,6 +238,8 @@ limitations under the License.
                     <li><a href='#' class='visible-xs' id='menuTabProgram' lkey='Blockly.Msg.TAB_PROGRAM'>Program</a></li>
                     <li><a href='#' class='visible-xs' id='menuTabConfiguration' lkey='Blockly.Msg.TAB_CONFIGURATION'>Configuration</a></li>
                     <li id='menuTabNNctxt' style='display: none;'><a href='#' class='visible-xs' id='menuTabNN' lkey='Blockly.Msg.TAB_NN'>Neural Network</a></li>
+                    <li id='menuTabNNexplorectxt' style='display: none;'><a href='#' class='visible-xs' id='menuTabNNexplore'>Neural Network - Explore</a></li>
+                    <li id='menuTabNNlearnctxt' style='display: none;'><a href='#' class='visible-xs' id='menuTabNNlearn'>Neural Network - Learn</a></li>
                 </ul>
             </div>
         </div>
@@ -261,9 +263,24 @@ limitations under the License.
                     class='menuTab'>Configuration</span>&nbsp;<span
                     id='tabConfigurationName'></span>
                 </a></li>
-                <li id='tabNNctxt' style='display: none;'>
-                    <a data-toggle='tab' id='tabNN' href='#nn'> <span lkey='Blockly.Msg.TAB_NN' class='menuTab'>Neural Network</span>&nbsp;<span
-                        id='tabNnName'>NEPOnn</span></a>
+                <li class='dropdown' style='position: fixed; left: 30em;'>
+                    <a class='dropdown-toggle' data-toggle='dropdown' href='#' role='button' aria-haspopup='true' aria-expanded='false'>
+                        <span lkey='Blockly.Msg.TAB_NN' class='menuTab'>Neural Network</span>&nbsp;
+                        <span id='tabNnName'>NEPOnn</span>&nbsp;
+                        <span class='caret'></span>
+                    </a>
+                    <ul class='dropdown-menu'>
+                        <li id='tabNNctxt' style='display: none;'>
+                            <a data-toggle='tab' id='tabNN' href='#nn'> <span lkey='Blockly.Msg.TAB_NN_DEFINE' class='menuTab'>Neural Network</span></a>
+                        </li>
+                        <li id='tabNNexplorectxt' style='display: none;'>
+                            <a data-toggle='tab' id='tabNNexplore' href='#nn-explore'> <span lkey='Blockly.Msg.TAB_NN_EXPLORE'
+                                class='menuTab'>Neural Network - Explore</span></a>
+                        </li>
+                        <li id='tabNNlearnctxt' style='display: none;'>
+                            <a data-toggle='tab' id='tabNNlearn' href='#nn-learn'> <span lkey='Blockly.Msg.TAB_NN_LEARN' class='menuTab'>Neural Network - Learn</span></a>
+                        </li>
+                    </ul>
                 </li>
                 <li class='hidden'><a data-toggle='tab' id='tabProgList' href='#progList'>Listing of programs</a></li>
                 <li class='hidden'><a data-toggle='tab' id='tabConfList' href='#confList'>Listing of configurations</a></li>
@@ -661,9 +678,16 @@ limitations under the License.
                         </select>
                     </div>
                 </div>
-                <div id='nn-show-math-all' class='nn-control'>
-                    <span id='nn-show-math-label' class='nn-bold'></span>
-                    <div id='nn-show-math'></div>
+                <div id='nn-get-shape-all' class='nn-control'>
+                    <span id='nn-get-shape-label' class='nn-bold'></span>
+                    <div class='nn-input-div'>
+                        <input class='nn-input' id='nn-get-shape' />
+                        <span class='nn-shape-finished-button'>
+                            <button class='nn-btn' id='nn-shape-finished-button'>
+                                <span class='typcn typcn-tick'></span>
+                            </button>
+                        </span>
+                    </div>
                 </div>
                 <div class='nn-control'>
                     <span id='nn-show-precision-label' class='nn-bold'></span>
@@ -696,15 +720,6 @@ limitations under the License.
                         </select>
                     </div>
                 </div>
-                <!--                <div class="nn-control">
-                                    <span id="nn-regularization-label" class="nn-bold"></span>
-                                    <div class="select">
-                                        <select id="regularizations">
-                                            <option value="none">None</option>
-                                            <option value="L1">L1</option>
-                                            <option value="L2">L2</option>
-                                        </select>
-                                    </div> -->
             </div>
             <div id='nn-main-part'>
                 <div id='nn-features'>
@@ -728,6 +743,11 @@ limitations under the License.
                                     <span class='typcn typcn-tick'></span>
                                 </button>
                             </span>
+                            <span class='nn-btn nn-type-button'>
+                                <button class='nn-btn' id='nn-type-cancel'>
+                                    <span class='typcn typcn-cancel'></span>
+                                </button>
+                            </span>
                         </div>
                         <div id='nn-nameCard'>
                             <span class='nn-type'></span>
@@ -736,8 +756,180 @@ limitations under the License.
                                 <button class='nn-btn' id='nn-name-finished'>
                                     <span class='typcn typcn-tick'></span>
                                 </button>
-                                <div class='nn-name-hint' id='nn-name-message'></div>
                             </span>
+                            <span class='nn-type-button'>
+                                <button class='nn-btn' id='nn-name-cancel'>
+                                    <span class='typcn typcn-cancel'></span>
+                                </button>
+                            </span>
+                            <div class='nn-name-hint' id='nn-name-message'></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id='nn-explore' style='display: none;' class='tab-pane fade'>
+            <button class='nn-btn' id='explore-goto-sim'>
+                <span class='typcn typcn-simulation'></span>
+            </button>
+            <div class='nn-explore-btns'>
+                <button class='nn-explore-btn' id='nn-explore-run-full'>
+                    <span class='typcn typcn-xNN'></span>
+                </button>
+                <button class='nn-explore-btn' id='nn-explore-run-layer'>
+                    <span class='typcn typcn-flow-parallel'></span>
+                </button>
+                <button class='nn-explore-btn' id='nn-explore-run-neuron'>
+                    <span class='typcn typcn-arrow-forward-outline'></span>
+                </button>
+                <button class='nn-explore-btn' id='nn-explore-stop'>
+                    <span class='typcn typcn-media-stop'></span>
+                </button>
+            </div>
+            <div id='nn-explore-top-controls'>
+                <div id='nn-explore-select-click' class='nn-control'>
+                    <span id='nn-explore-focus-label' class='nn-bold'></span>
+                    <div class='select'>
+                        <select class='nn-selection' id='nn-explore-focus'>
+                            <option value='CLICK_NODE'></option>
+                            <option value='SHOW_ALL' selected='true'></option>
+                        </select>
+                    </div>
+                </div>
+                <div id='nn-show-math-all' class='nn-control'>
+                    <span id='nn-show-math-label' class='nn-bold'></span>
+                    <div id='nn-show-math'></div>
+                </div>
+                <div id='nn-show-next-neuron-all' class='nn-control'>
+                    <span id='nn-show-next-neuron-label' class='nn-bold'></span>
+                    <div id='nn-show-next-neuron'></div>
+                </div>
+                <div id='nn-explore-show-activation-function' class='nn-control'>
+                    <span id='nn-explore-show-activation-label' class='nn-bold'></span>
+                    <div id='nn-explore-show-activation' class='nn-selection'></div>
+                </div>
+            </div>
+            <div id='nn-explore-main-part'>
+                <div id='nn-explore-features'>
+                    <div id='nn-explore-network'>
+                        <svg id='nn-explore-svg'></svg>
+                        <div id='nn-valueCard'>
+                            <span class='nn-type'></span>
+                            <input id='nn-value' />
+                            <span class='nn-btn nn-type-button'>
+                                <button class='nn-btn' id='nn-value-plus'>
+                                    <span class='typcn typcn-plus'></span>
+                                </button>
+                            </span>
+                            <span class='nn-btn nn-type-button'>
+                                <button class='nn-btn' id='nn-value-minus'>
+                                    <span class='typcn typcn-minus'></span>
+                                </button>
+                            </span><span class='nn-type-button'>
+                                <button class='nn-btn' id='nn-value-finished'>
+                                    <span class='typcn typcn-tick'></span>
+                                </button>
+                            </span>
+                            <span class='nn-type-button'>
+                                <button class='nn-btn' id='nn-value-cancel'>
+                                    <span class='typcn typcn-cancel'></span>
+                                </button>
+                            </span>
+                            <div class='nn-name-hint' id='nn-value-message'></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id='nn-learn' style='display: none;' class='tab-pane fade'>
+            <button class='nn-btn' id='learn-goto-sim'>
+                <span class='typcn typcn-simulation'></span>
+            </button>
+            <div class='nn-learn-btns'>
+                <button class='nn-explore-btn' id='nn-learn-run'>
+                    <span class='typcn typcn-media-play-outline debug'></span>
+                </button>
+                <button class='nn-explore-btn' id='nn-learn-debug'>
+                    <span class='typcn typcn-arrow-forward-outline debug'></span>
+                </button>
+                <button class='nn-explore-btn' id='nn-learn-stop'>
+                    <span class='typcn typcn-media-stop debug'></span>
+                </button>
+                <button class='nn-explore-btn' id='nn-learn-upload'>
+                    <span class='typcn typcn-upload-outline'></span>
+                    <input type='file' id='nn-training-data-upload' />
+                </button>
+                <button class='nn-explore-btn' id='nn-learn-upload-popup'>
+                    <span class='typcn typcn-upload'></span>
+                </button>
+            </div>
+            <div id='nn-learn-top-controls'>
+                <div id='nn-learn-select-click' class='nn-control'>
+                    <span id='nn-learn-focus-label' class='nn-bold'></span>
+                    <div class='select'>
+                        <select class='nn-selection' id='nn-learn-focus'>
+                            <option value='CLICK_NODE'></option>
+                            <option value='SHOW_ALL' selected='true'></option>
+                        </select>
+                    </div>
+                </div>
+                <div id='nn-get-learning-rate-all' class='nn-control'>
+                    <span id='nn-get-learning-rate-label' class='nn-bold'></span>
+                    <div class='nn-input-div'>
+                        <input class='nn-input' id='nn-get-learning-rate' />
+                        <span class='nn-learning-rate-finished-button'>
+                            <button class='nn-btn' id='nn-learning-rate-finished-button'>
+                                <span class='typcn typcn-tick'></span>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <div id='nn-get-regularization-rate-all' class='nn-control'>
+                    <span id='nn-get-regularization-rate-label' class='nn-bold'></span>
+                    <div class='nn-input-div'>
+                        <input class='nn-input' id='nn-get-regularization-rate' />
+                        <span class='nn-regularization-rate-finished-button'>
+                            <button class='nn-btn' id='nn-regularization-rate-finished-button'>
+                                <span class='typcn typcn-tick'></span>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <div id='nn-learn-show-activation-function' class='nn-control'>
+                    <span id='nn-learn-show-activation-label' class='nn-bold'></span>
+                    <div id='nn-learn-show-activation' class='nn-selection'></div>
+                </div>
+            </div>
+            <div id='nn-learn-main-part'>
+                <div id='nn-learn-features'>
+                    <div id='nn-learn-network'>
+                        <svg id='nn-learn-svg'></svg>
+                        <div class='nn-table-popup' id='nn-table-popup'>
+                            <div id='nn-table-popup-buttons'>
+                                <span class='nn-btn nn-type-button'>
+                                    <button class='nn-btn' id='nn-table-plus'>
+                                        <span class='typcn typcn-plus'></span>
+                                    </button>
+                                </span>
+                                <span class='nn-btn nn-type-button'>
+                                    <button class='nn-btn' id='nn-table-minus'>
+                                        <span class='typcn typcn-minus'></span>
+                                    </button>
+                                </span>
+                                <span class='nn-type-button'>
+                                    <button class='nn-btn' id='nn-table-finished'>
+                                        <span class='typcn typcn-tick'></span>
+                                    </button>
+                                </span>
+                                <span class='nn-type-button'>
+                                    <button class='nn-btn' id='nn-table-cancel'>
+                                        <span class='typcn typcn-cancel'></span>
+                                    </button>
+                                </span>
+                            </div>
+                            <div id='nn-table-popup-wrapper'>
+                                <table id='nn-table-user-input' border='1'></table>
+                            </div>
                         </div>
                     </div>
                 </div>

@@ -674,6 +674,32 @@ function initMenuEvents() {
         },
         'tabNN clicked'
     );
+    $('#menuTabNNexplore').onWrap(
+        'click',
+        '',
+        function (event) {
+            if ($('#tabNNexplore').hasClass('tabClicked')) {
+                $('.scroller-right').clickWrap();
+            } else if ($('#tabNNexplore').hasClass('tabClicked')) {
+                $('.scroller-right').clickWrap();
+            }
+            $('#tabNNexplore').clickWrap();
+        },
+        'tabNNexplore clicked'
+    );
+    $('#menuTabNNlearn').onWrap(
+        'click',
+        '',
+        function (event) {
+            if ($('#tabNNlearn').hasClass('tabClicked')) {
+                $('.scroller-right').clickWrap();
+            } else if ($('#tabNNlearn').hasClass('tabClicked')) {
+                $('.scroller-right').clickWrap();
+            }
+            $('#tabNNlearn').clickWrap();
+        },
+        'tabNN clicked'
+    );
 
     // Close submenu on mouseleave
     $('.navbar-fixed-top').on('mouseleave', function (event) {

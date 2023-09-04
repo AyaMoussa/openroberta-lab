@@ -14,7 +14,6 @@ import * as NOTIFICATION_C from 'notification.controller';
 var LONG = 300000; // Ping time 5min
 var SHORT = 3000; // Ping time 3sec
 
-const activationDisplayName = { linear: 'Linear', relu: 'ReLU', tanh: 'Tanh', sigmoid: 'Sigmoid', bool: 'Bool(0,1)' };
 /**
  * Init robot
  */
@@ -416,21 +415,27 @@ function setRobot(robot, result, opt_init) {
 
     if (GUISTATE.gui.nn) {
         $('#tabNNctxt').show();
+        $('#tabNNexplorectxt').show();
+        $('#tabNNlearnctxt').show();
         $('#menuTabNNctxt').show();
+        $('#menuTabNNexplorectxt').show();
+        $('#menuTabNNlearnctxt').show();
         $('#nn-activations').empty();
         $.each(GUISTATE.gui.nnActivations, function (_, item) {
             $('#nn-activations').append(
                 $('<option>', {
                     value: item,
-                    text: activationDisplayName[item],
+                    text: UTIL.activationDisplayName[item],
                 })
             );
         });
-        $('#nn').show();
     } else {
         $('#tabNNctxt').hide();
+        $('#tabNNexplorectxt').hide();
+        $('#tabNNlearnctxt').hide();
         $('#menuTabNNctxt').hide();
-        $('#nn').hide();
+        $('#menuTabNNexplorectxt').hide();
+        $('#menuTabNNlearnctxt').hide();
     }
     if (getHasRobotStopButton(robot)) {
         GUISTATE.gui.blocklyWorkspace && GUISTATE.gui.blocklyWorkspace.robControls.showStopProgram();

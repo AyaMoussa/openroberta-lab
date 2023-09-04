@@ -125,6 +125,7 @@ define(["require", "exports", "./neuralnetwork.helper", "util"], function (requi
             this.bias = new NNumber();
             this.outputs = [];
             this.output = 0;
+            this.outputForUI = '0';
             /** Error derivative with respect to this node's output. */
             this.outputDer = 0;
             /** Error derivative with respect to this node's total input. */
@@ -293,7 +294,7 @@ define(["require", "exports", "./neuralnetwork.helper", "util"], function (requi
                 network.push(currentLayer);
                 var numNodes = shape[layerIdx];
                 for (var i = 0; i < numNodes; i++) {
-                    var nodeName = isInputLayer ? state.inputs[i] : isOutputLayer ? state.outputs[i] : 'h' + layerIdx + 'n' + (i + 1);
+                    var nodeName = isInputLayer ? state.inputs[i] : isOutputLayer ? state.outputs[i] : state.hiddenNeurons[layerIdx - 1][i];
                     var node = new Node(nodeName, state.activation);
                     currentLayer.push(node);
                     if (layerIdx >= 1) {
@@ -339,10 +340,14 @@ define(["require", "exports", "./neuralnetwork.helper", "util"], function (requi
          * in the network.
          */
         Network.prototype.backProp = function (target, errorFunc) {
+            if (errorFunc === void 0) { errorFunc = H.Errors.SQUARE; }
             // The output node is a special case. We use the user-defined error
             // function for the derivative.
-            var outputNode = this.network[this.network.length - 1][0];
-            outputNode.outputDer = errorFunc.der(outputNode.output, target);
+            var outputLayer = this.network[this.network.length - 1];
+            for (var i = 0; i < outputLayer.length; i++) {
+                var outputNode = outputLayer[i];
+                outputNode.outputDer = errorFunc.der(outputNode.output, target[i]);
+            }
             // Go through the layers backwards.
             for (var layerIdx = this.network.length - 1; layerIdx >= 1; layerIdx--) {
                 var currentLayer = this.network[layerIdx];
@@ -426,6 +431,21 @@ define(["require", "exports", "./neuralnetwork.helper", "util"], function (requi
                 }
             }
         };
+        Network.prototype.getLoss = function (dataPoints) {
+            var _this = this;
+            var loss = 0;
+            var outputLayer = this.network[this.network.length - 1];
+            dataPoints.forEach(function (inputOutputPair) {
+                var inputsForLearning = inputOutputPair.slice(0, _this.getInputNames().length);
+                var outputTargetValues = inputOutputPair.slice(_this.getInputNames().length);
+                _this.setInputValuesFromArray(inputsForLearning);
+                _this.forwardProp();
+                outputLayer.forEach(function (outputNode, idx) {
+                    loss += Math.sqrt(H.Errors.SQUARE.error(outputNode.output, outputTargetValues[idx]));
+                });
+            });
+            return loss / dataPoints.length;
+        };
         /** Iterates over every node in the network */
         Network.prototype.forEachNode = function (ignoreInputs, accessor) {
             for (var layerIdx = ignoreInputs ? 1 : 0; layerIdx < this.network.length; layerIdx++) {
@@ -501,6 +521,20 @@ define(["require", "exports", "./neuralnetwork.helper", "util"], function (requi
             }
             return inputNames;
         };
+        Network.prototype.getHiddenNeuronNames = function () {
+            var hiddenNeuronNames = [];
+            if (this.network != null && this.network.length > 2) {
+                for (var i = 1; i < this.network.length - 1; i++) {
+                    var hiddenLayerNeurons = [];
+                    for (var _i = 0, _a = this.network[i]; _i < _a.length; _i++) {
+                        var node = _a[_i];
+                        hiddenLayerNeurons.push(node.id);
+                    }
+                    hiddenNeuronNames.push(hiddenLayerNeurons);
+                }
+            }
+            return hiddenNeuronNames;
+        };
         Network.prototype.getOutputNames = function () {
             var outputNames = [];
             if (this.network != null && this.network.length > 0) {
@@ -515,6 +549,10 @@ define(["require", "exports", "./neuralnetwork.helper", "util"], function (requi
         Network.prototype.setInputNeuronVal = function (id, val) {
             var node = this.getNeuronById(id);
             node.output = val;
+        };
+        Network.prototype.setInputNeuronValForUI = function (id, val) {
+            var node = this.getNeuronById(id);
+            node.outputForUI = val;
         };
         Network.prototype.getOutputNeuronVal = function (id) {
             var node = this.getNeuronById(id);
@@ -632,6 +670,15 @@ define(["require", "exports", "./neuralnetwork.helper", "util"], function (requi
                         }
                         node.bias.set(bias);
                     }
+                }
+            }
+        };
+        Network.prototype.setInputValuesFromArray = function (inputValuesArray) {
+            if (this.network != null && this.network.length > 0 && inputValuesArray.length > 0) {
+                var inputLayer = this.network[0];
+                for (var i = 0; i < inputValuesArray.length && i < inputLayer.length; i += 1) {
+                    inputLayer[i].output = inputValuesArray[i];
+                    inputLayer[i].outputForUI = inputValuesArray[i].toString();
                 }
             }
         };

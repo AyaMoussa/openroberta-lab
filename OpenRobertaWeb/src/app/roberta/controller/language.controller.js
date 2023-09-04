@@ -6,6 +6,7 @@ import * as CONFIGURATION_C from 'configuration.controller';
 import * as USER_C from 'user.controller';
 import * as NOTIFICATION_C from 'notification.controller';
 import * as Blockly from 'blockly';
+import * as NN_C from 'nn.controller';
 
 /**
  * Initialize language switching
@@ -100,6 +101,7 @@ function switchLanguage(language) {
         CONFIGURATION_C.reloadView();
         USER_C.initValidationMessages();
         NOTIFICATION_C.reloadNotifications();
+        NN_C.reloadViews();
         var value = Blockly.Msg.MENU_START_BRICK;
         if (value.indexOf('$') >= 0) {
             value = value.replace('$', GUISTATE_C.getRobotRealName());
