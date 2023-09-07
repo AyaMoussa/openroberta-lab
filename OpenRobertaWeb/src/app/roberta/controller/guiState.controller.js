@@ -416,10 +416,11 @@ function setRobot(robot, result, opt_init) {
 
     if (GUISTATE.gui.nn) {
         $('#tabNNctxt').show();
-        // $('#tabNNdefine').show();
-        $('#tabNNexplore').show();
-        $('#tabNNlearn').show();
+        $('#tabNNexplorectxt').show();
+        $('#tabNNlearnctxt').show();
         $('#menuTabNNctxt').show();
+        $('#menuTabNNexplorectxt').show();
+        $('#menuTabNNlearnctxt').show();
         $('#nn-activations').empty();
         $.each(GUISTATE.gui.nnActivations, function (_, item) {
             $('#nn-activations').append(
@@ -429,18 +430,13 @@ function setRobot(robot, result, opt_init) {
                 })
             );
         });
-        $('#nn').show();
-        $('#nnExp').show();
-        $('#nnLrn').show();
     } else {
         $('#tabNNctxt').hide();
-        // $('#tabNNdefine').hide();
-        $('#tabNNexplore').hide();
-        $('#tabNNlearn').hide();
+        $('#tabNNexplorectxt').hide();
+        $('#tabNNlearnctxt').hide();
         $('#menuTabNNctxt').hide();
-        $('#nn').hide();
-        $('#nnExp').hide();
-        $('#nnLrn').hide();
+        $('#menuTabNNexplorectxt').hide();
+        $('#menuTabNNlearnctxt').hide();
     }
     if (getHasRobotStopButton(robot)) {
         GUISTATE.gui.blocklyWorkspace && GUISTATE.gui.blocklyWorkspace.robControls.showStopProgram();

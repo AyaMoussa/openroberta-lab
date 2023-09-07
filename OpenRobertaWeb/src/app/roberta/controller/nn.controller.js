@@ -11,6 +11,7 @@ export function init() {
     $('#tabNN').onWrap(
         'show.bs.tab',
         function (e) {
+            $('#nn').show();
             GUISTATE_C.setView('tabNN');
         },
         'show tabNN'
@@ -29,11 +30,68 @@ export function init() {
         'hide.bs.tab',
         function (e) {
             saveNN2Blockly();
+            $('#nn').hide();
         },
         'hide tabNN'
     );
 
     $('#tabNN').onWrap('hidden.bs.tab', function (e) {}, 'hidden tabNN');
+
+    $('#tabNNexplore').onWrap(
+        'show.bs.tab',
+        function (e) {
+            $('#nnExplore').show();
+            GUISTATE_C.setView('tabNNexplore');
+        },
+        'show tabNNexplore'
+    );
+
+    $('#tabNNexplore').onWrap(
+        'shown.bs.tab',
+        function (e) {
+            GUISTATE_C.setProgramSaved(false);
+            mkNNfromNNStepDataAndRunNNEditorForTabExplore();
+        },
+        'shown tabNNexplore'
+    );
+
+    $('#tabNNexplore').onWrap(
+        'hide.bs.tab',
+        function (e) {
+            saveNN2Blockly();
+            $('#nnExplore').hide();
+        },
+        'hide tabNNexplore'
+    );
+
+    $('#tabNNexplore').onWrap('hidden.bs.tab', function (e) {}, 'hidden tabNNexplore');
+
+    $('#tabNNlearn').onWrap(
+        'show.bs.tab',
+        function (e) {
+            GUISTATE_C.setView('tabNNlearn');
+        },
+        'show tabNNlearn'
+    );
+
+    $('#tabNNlearn').onWrap(
+        'shown.bs.tab',
+        function (e) {
+            GUISTATE_C.setProgramSaved(false);
+            mkNNfromNNStepDataAndRunNNEditor();
+        },
+        'shown tabNNlearn'
+    );
+
+    $('#tabNNlearn').onWrap(
+        'hide.bs.tab',
+        function (e) {
+            saveNN2Blockly();
+        },
+        'hide tabNNlearn'
+    );
+
+    $('#tabNNlearn').onWrap('hidden.bs.tab', function (e) {}, 'hidden tabNNlearn');
 }
 
 /**
@@ -75,4 +133,12 @@ export function mkNNfromProgramStartBlock() {
 export function mkNNfromNNStepDataAndRunNNEditor() {
     mkNNfromProgramStartBlock();
     NN_UI.runNNEditor(GUISTATE_C.hasSim());
+}
+
+/**
+ * create the NN from the program XML and start the NN editor for tab NN-Explore. Called, when the NN-Explore tab is opened
+ */
+export function mkNNfromNNStepDataAndRunNNEditorForTabExplore() {
+    mkNNfromProgramStartBlock();
+    NN_UI.runNNEditorForTabExplore(GUISTATE_C.hasSim());
 }

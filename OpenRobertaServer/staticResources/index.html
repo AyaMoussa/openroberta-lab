@@ -238,6 +238,8 @@ limitations under the License.
                     <li><a href='#' class='visible-xs' id='menuTabProgram' lkey='Blockly.Msg.TAB_PROGRAM'>Program</a></li>
                     <li><a href='#' class='visible-xs' id='menuTabConfiguration' lkey='Blockly.Msg.TAB_CONFIGURATION'>Configuration</a></li>
                     <li id='menuTabNNctxt' style='display: none;'><a href='#' class='visible-xs' id='menuTabNN' lkey='Blockly.Msg.TAB_NN'>Neural Network</a></li>
+                    <li id='menuTabNNexplorectxt' style='display: none;'><a href='#' class='visible-xs' id='menuTabNNexplore'>Neural Network - Explore</a></li>
+                    <li id='menuTabNNlearnctxt' style='display: none;'><a href='#' class='visible-xs' id='menuTabNNlearn'>Neural Network - Learn</a></li>
                 </ul>
             </div>
         </div>
@@ -265,11 +267,12 @@ limitations under the License.
                     <a data-toggle='tab' id='tabNN' href='#nn'> <span lkey='Blockly.Msg.TAB_NN' class='menuTab'>Neural Network</span>&nbsp;<span
                         id='tabNnName'>NEPOnn</span></a>
                 </li>
-                <li id='tabNNexplore' style='display: none;'>
-                    <a data-toggle='tab' id='tabNNexp' href='#nnExp'> <span lkey='NEURAL NETWORK - EXPLORE' class='menuTab'>Neural Network - Explore</span></a>
+                <li id='tabNNexplorectxt' style='display: none;'>
+                    <a data-toggle='tab' id='tabNNexplore' href='#nnExplore'> <span lkey='Blockly.Msg.TAB_NN_EXPLORE'
+                        class='menuTab'>Neural Network - Explore</span></a>
                 </li>
-                <li id='tabNNlearn' style='display: none;'>
-                    <a data-toggle='tab' id='tabNNlrn' href='#nnLrn'> <span lkey='NEURAL NETWORK - LEARN' class='menuTab'>Neural Network - Learn</span></a>
+                <li id='tabNNlearnctxt' style='display: none;'>
+                    <a data-toggle='tab' id='tabNNlearn' href='#nnLearn'> <span lkey='Blockly.Msg.TAB_NN_LEARN' class='menuTab'>Neural Network - Learn</span></a>
                 </li>
                 <li class='hidden'><a data-toggle='tab' id='tabProgList' href='#progList'>Listing of programs</a></li>
                 <li class='hidden'><a data-toggle='tab' id='tabConfList' href='#confList'>Listing of configurations</a></li>
@@ -667,19 +670,15 @@ limitations under the License.
                         </select>
                     </div>
                 </div>
-                <div id='nn-show-math-all' style='display: none;' class='nn-control'>
-                    <span id='nn-show-math-label' class='nn-bold'></span>
-                    <div id='nn-show-math'></div>
-                </div>
                 <div id='nn-get-shape-all' class='nn-control'>
                     <span id='nn-get-shape-label' class='nn-bold'></span>
                     <div>
                         <input class='nn-input' id='nn-get-shape' />
-                        <!--                        <span class='nn-btn nn-type-button'>-->
-                        <!--                            <button class='nn-btn'>-->
-                        <!--                                <span class='typcn typcn-tick'></span>-->
-                        <!--                            </button>-->
-                        <!--                        </span>-->
+                        <span class='nn-shape-finished-button'>
+                            <button class='nn-btn' id='nn-shape-finished-button'>
+                                <span class='typcn typcn-tick'></span>
+                            </button>
+                        </span>
                     </div>
                 </div>
                 <div class='nn-control'>
@@ -713,15 +712,6 @@ limitations under the License.
                         </select>
                     </div>
                 </div>
-                <!--                <div class="nn-control">
-                                    <span id="nn-regularization-label" class="nn-bold"></span>
-                                    <div class="select">
-                                        <select id="regularizations">
-                                            <option value="none">None</option>
-                                            <option value="L1">L1</option>
-                                            <option value="L2">L2</option>
-                                        </select>
-                                    </div> -->
             </div>
             <div id='nn-main-part'>
                 <div id='nn-features'>
@@ -760,30 +750,89 @@ limitations under the License.
                 </div>
             </div>
         </div>
-        <!--        <div id='nnExp' style='display: none;' class='tab-pane fade'>-->
-        <!--            <button class='nn-btn' id='goto-sim'>-->
-        <!--                <span class='typcn typcn-simulation'></span>-->
-        <!--            </button>-->
-        <!--            <div id='nn-top-controls'>-->
-        <!--                <div id='nn-show-math-all' style='display: none;' class='nn-control'>-->
-        <!--                    <span id='nn-show-math-label' class='nn-bold'></span>-->
-        <!--                    <div id='nn-show-math'></div>-->
-        <!--                </div>-->
-        <!--            </div>-->
-        <!--        </div>-->
+        <div id='nnExplore' style='display: none;' class='tab-pane fade'>
+            <button class='nn-btn' id='explore-goto-sim'>
+                <span class='typcn typcn-simulation'></span>
+            </button>
+            <div class='nn-explore-btns'>
+                <button class='nn-explore-btn' id='nn-explore-run-full'>
+                    <span class='typcn typcn-xNN'></span>
+                </button>
+                <button class='nn-explore-btn' id='nn-explore-run-layer'>
+                    <span class='typcn typcn-arrow-forward-outline'></span>
+                </button>
+                <button class='nn-explore-btn' id='nn-explore-run-neuron'>
+                    <span class='typcn typcn-media-play-outline'></span>
+                </button>
+                <button class='nn-explore-btn' id='nn-explore-stop'>
+                    <span class='typcn typcn-media-stop'></span>
+                </button>
+            </div>
+            <div id='nn-explore-top-controls'>
+                <div id='nn-explore-select-click' class='nn-control'>
+                    <span id='nn-explore-focus-label' class='nn-bold'></span>
+                    <div class='select'>
+                        <select class='nn-selection' id='nn-explore-focus'>
+                            <option value='CLICK_NODE'></option>
+                            <option value='SHOW_ALL' selected='true'></option>
+                        </select>
+                    </div>
+                </div>
+                <div id='nn-show-math-all' class='nn-control'>
+                    <span id='nn-show-math-label' class='nn-bold'></span>
+                    <div id='nn-show-math'></div>
+                </div>
+                <div id='nn-show-next-neuron-all' class='nn-control'>
+                    <span id='nn-show-next-neuron-label' class='nn-bold'></span>
+                    <div id='nn-show-next-neuron'></div>
+                </div>
+            </div>
+            <div id='nn-explore-main-part'>
+                <div id='nn-explore-features'>
+                    <div id='nn-explore-network'>
+                        <svg id='nn-explore-svg'></svg>
+                        <div id='nn-valueCard'>
+                            <span class='nn-type'></span>
+                            <input id='nn-value' />
+                            <span class='nn-type-button'>
+                                <button class='nn-btn' id='nn-value-finished'>
+                                    <span class='typcn typcn-tick'></span>
+                                </button>
+                                <div class='nn-name-hint' id='nn-value-message'></div>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
         <!--        <div id='nnLrn' style='display: none;' class='tab-pane fade'>-->
         <!--            <button class='nn-btn' id='goto-sim'>-->
         <!--                <span class='typcn typcn-simulation'></span>-->
         <!--            </button>-->
+        <!--            <div class='nn-explore-btns'>-->
+        <!--                <button class='nn-explore-btn' id='nn-learn-run'>-->
+        <!--                    <span class='blbtn typcn typcn-media-play-outline debug'></span>-->
+        <!--                </button>-->
+        <!--                <button class='nn-explore-btn' id='nn-learn-debug'>-->
+        <!--                    <span class='blbtn typcn typcn-arrow-forward-outline debug'></span>-->
+        <!--                </button>-->
+        <!--                <button class='nn-explore-btn' id='nn-learn-stop'>-->
+        <!--                    <span class='blbtn typcn typcn-media-stop debug'></span>-->
+        <!--                </button>-->
+        <!--                <button class='nn-explore-btn' id='nn-upload'>-->
+        <!--                    <span class='blbtn typcn typcn-upload-outline'></span>-->
+        <!--                </button>-->
+        <!--            </div>-->
         <!--            <div id='nn-top-controls'>-->
-        <!--                <div class="nn-control">-->
-        <!--                    <span id="nn-regularization-label" class="nn-bold"></span>-->
-        <!--                    <div class="select">-->
-        <!--                        <select id="regularizations">-->
-        <!--                            <option value="none">None</option>-->
-        <!--                            <option value="L1">L1</option>-->
-        <!--                            <option value="L2">L2</option>-->
+        <!--                <div class='nn-control'>-->
+        <!--                    <span id='nn-regularization-label' class='nn-bold'></span>-->
+        <!--                    <div class='select'>-->
+        <!--                        <select id='regularizations'>-->
+        <!--                            <option value='none'>None</option>-->
+        <!--                            <option value='L1'>L1</option>-->
+        <!--                            <option value='L2'>L2</option>-->
         <!--                        </select>-->
+        <!--                    </div>-->
         <!--                </div>-->
         <!--            </div>-->
         <!--        </div>-->
