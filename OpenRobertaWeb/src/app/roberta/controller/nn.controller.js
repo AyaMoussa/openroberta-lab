@@ -69,6 +69,7 @@ export function init() {
     $('#tabNNlearn').onWrap(
         'show.bs.tab',
         function (e) {
+            $('#nnLearn').show();
             GUISTATE_C.setView('tabNNlearn');
         },
         'show tabNNlearn'
@@ -87,6 +88,7 @@ export function init() {
         'hide.bs.tab',
         function (e) {
             saveNN2Blockly();
+            $('#nnLearn').hide();
         },
         'hide tabNNlearn'
     );
@@ -141,4 +143,9 @@ export function mkNNfromNNStepDataAndRunNNEditor() {
 export function mkNNfromNNStepDataAndRunNNEditorForTabExplore() {
     mkNNfromProgramStartBlock();
     NN_UI.runNNEditorForTabExplore(GUISTATE_C.hasSim());
+}
+
+export function reloadViews() {
+    NN_UI.reconstructNNIncludingUI();
+    NN_UI.drawNetworkUIForTabExplore();
 }

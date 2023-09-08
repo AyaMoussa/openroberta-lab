@@ -1,6 +1,6 @@
 define(["require", "exports", "guiState.controller", "neuralnetwork.ui", "jquery", "util", "jquery-validate"], function (require, exports, GUISTATE_C, NN_UI, $, UTIL) {
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.mkNNfromNNStepDataAndRunNNEditorForTabExplore = exports.mkNNfromNNStepDataAndRunNNEditor = exports.mkNNfromProgramStartBlock = exports.saveNN2Blockly = exports.programWasReplaced = exports.init = void 0;
+    exports.reloadViews = exports.mkNNfromNNStepDataAndRunNNEditorForTabExplore = exports.mkNNfromNNStepDataAndRunNNEditor = exports.mkNNfromProgramStartBlock = exports.saveNN2Blockly = exports.programWasReplaced = exports.init = void 0;
     /**
      * initialize the callbacks needed by the NN tab. Called once at front end init time
      */
@@ -32,6 +32,7 @@ define(["require", "exports", "guiState.controller", "neuralnetwork.ui", "jquery
         }, 'hide tabNNexplore');
         $('#tabNNexplore').onWrap('hidden.bs.tab', function (e) { }, 'hidden tabNNexplore');
         $('#tabNNlearn').onWrap('show.bs.tab', function (e) {
+            $('#nnLearn').show();
             GUISTATE_C.setView('tabNNlearn');
         }, 'show tabNNlearn');
         $('#tabNNlearn').onWrap('shown.bs.tab', function (e) {
@@ -40,6 +41,7 @@ define(["require", "exports", "guiState.controller", "neuralnetwork.ui", "jquery
         }, 'shown tabNNlearn');
         $('#tabNNlearn').onWrap('hide.bs.tab', function (e) {
             saveNN2Blockly();
+            $('#nnLearn').hide();
         }, 'hide tabNNlearn');
         $('#tabNNlearn').onWrap('hidden.bs.tab', function (e) { }, 'hidden tabNNlearn');
     }
@@ -95,4 +97,9 @@ define(["require", "exports", "guiState.controller", "neuralnetwork.ui", "jquery
         NN_UI.runNNEditorForTabExplore(GUISTATE_C.hasSim());
     }
     exports.mkNNfromNNStepDataAndRunNNEditorForTabExplore = mkNNfromNNStepDataAndRunNNEditorForTabExplore;
+    function reloadViews() {
+        NN_UI.reconstructNNIncludingUI();
+        NN_UI.drawNetworkUIForTabExplore();
+    }
+    exports.reloadViews = reloadViews;
 });

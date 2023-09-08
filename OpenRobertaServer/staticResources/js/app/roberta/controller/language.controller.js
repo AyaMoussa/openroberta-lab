@@ -1,4 +1,4 @@
-define(["require", "exports", "log", "jquery", "guiState.controller", "program.controller", "configuration.controller", "user.controller", "notification.controller", "blockly"], function (require, exports, LOG, $, GUISTATE_C, PROGRAM_C, CONFIGURATION_C, USER_C, NOTIFICATION_C, Blockly) {
+define(["require", "exports", "log", "jquery", "guiState.controller", "program.controller", "configuration.controller", "user.controller", "notification.controller", "blockly", "nn.controller"], function (require, exports, LOG, $, GUISTATE_C, PROGRAM_C, CONFIGURATION_C, USER_C, NOTIFICATION_C, Blockly, NN_C) {
     Object.defineProperty(exports, "__esModule", { value: true });
     exports.translate = exports.init = void 0;
     /**
@@ -112,6 +112,7 @@ define(["require", "exports", "log", "jquery", "guiState.controller", "program.c
             CONFIGURATION_C.reloadView();
             USER_C.initValidationMessages();
             NOTIFICATION_C.reloadNotifications();
+            NN_C.reloadViews();
             var value = Blockly.Msg.MENU_START_BRICK;
             if (value.indexOf('$') >= 0) {
                 value = value.replace('$', GUISTATE_C.getRobotRealName());

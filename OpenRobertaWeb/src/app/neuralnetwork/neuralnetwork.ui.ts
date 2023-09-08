@@ -220,6 +220,8 @@ export async function runNNEditorForTabExplore(hasSim: boolean) {
     D3.select('#nn-explore-run-full').on('click', () => {
         exploreType = ExploreType.RUN;
         network.forwardProp();
+        currentDebugLayer = 0;
+        currentDebugNodeIndex = 0;
         hideAllCards();
         drawNetworkUIForTabExplore();
     });
@@ -284,7 +286,7 @@ export function resetUiOnTerminate() {
     focusNode = null;
 }
 
-function reconstructNNIncludingUI() {
+export function reconstructNNIncludingUI() {
     makeNetworkFromState();
     drawNetworkUI(network);
 }

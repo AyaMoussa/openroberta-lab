@@ -50,7 +50,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 };
 define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", "./neuralnetwork.uistate", "log", "./neuralnetwork.msg", "util"], function (require, exports, H, neuralnetwork_nn_1, neuralnetwork_uistate_1, LOG, MSG, UTIL) {
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getNetwork = exports.saveNN2Blockly = exports.programWasReplaced = exports.drawNetworkUIForTabExplore = exports.resetUiOnTerminate = exports.runNNEditorForTabExplore = exports.runNNEditor = exports.setupNN = void 0;
+    exports.getNetwork = exports.saveNN2Blockly = exports.programWasReplaced = exports.drawNetworkUIForTabExplore = exports.reconstructNNIncludingUI = exports.resetUiOnTerminate = exports.runNNEditorForTabExplore = exports.runNNEditor = exports.setupNN = void 0;
     var NodeType;
     (function (NodeType) {
         NodeType[NodeType["INPUT"] = 0] = "INPUT";
@@ -257,6 +257,8 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                         D3.select('#nn-explore-run-full').on('click', function () {
                             exploreType = ExploreType.RUN;
                             network.forwardProp();
+                            currentDebugLayer = 0;
+                            currentDebugNodeIndex = 0;
                             hideAllCards();
                             drawNetworkUIForTabExplore();
                         });
@@ -323,6 +325,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         makeNetworkFromState();
         drawNetworkUI(network);
     }
+    exports.reconstructNNIncludingUI = reconstructNNIncludingUI;
     function drawNetworkUIForTabExplore() {
         $('#nn-explore-focus-label').text(MSG.get('NN_EXPLORE_FOCUS_OPTION'));
         $('#nn-explore-focus [value="CLICK_NODE"]').text(MSG.get('NN_EXPLORE_CLICK_NODE'));
