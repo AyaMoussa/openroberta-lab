@@ -98,6 +98,7 @@ define(["require", "exports", "guiState.controller", "neuralnetwork.ui", "jquery
     }
     exports.mkNNfromNNStepDataAndRunNNEditorForTabExplore = mkNNfromNNStepDataAndRunNNEditorForTabExplore;
     function reloadViews() {
+        NN_UI.resetSelections();
         NN_UI.reconstructNNIncludingUI();
         NN_UI.drawNetworkUIForTabExplore();
     }

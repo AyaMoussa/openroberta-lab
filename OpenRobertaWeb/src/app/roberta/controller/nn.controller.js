@@ -146,6 +146,7 @@ export function mkNNfromNNStepDataAndRunNNEditorForTabExplore() {
 }
 
 export function reloadViews() {
+    NN_UI.resetSelections();
     NN_UI.reconstructNNIncludingUI();
     NN_UI.drawNetworkUIForTabExplore();
 }

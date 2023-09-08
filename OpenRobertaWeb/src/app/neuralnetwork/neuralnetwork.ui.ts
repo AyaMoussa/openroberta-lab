@@ -467,7 +467,7 @@ export function drawNetworkUIForTabExplore() {
             }
         }
         if (exploreType == ExploreType.NEURON) {
-            if (currentDebugNode == node) {
+            if (currentDebugNode.id == node.id) {
                 drawNodeOutput(container, nodeGroup, node);
             }
             D3.select('#nn-show-next-neuron').html(flattenedNetworkWOInputs[currentDebugNodeIndex].id);
@@ -1164,7 +1164,7 @@ function hideAllCards() {
     }
 }
 
-function resetSelections(): void {
+export function resetSelections(): void {
     exploreType = null;
     currentDebugLayer = 0;
     [currentDebugNode, currentDebugNodeIndex] = [null, 0];
@@ -1323,9 +1323,9 @@ function updateUI(svgId: string) {
             }
         });
         if (focusNode !== undefined && focusNode !== null) {
-            D3.select('#nn-show-math').html(focusNode.genMath(state.activationKey));
+            D3.select('#nn-show-math').html(focusNode.id + ' = ' + focusNode.genMath(state.activationKey));
         } else if (exploreType == ExploreType.NEURON) {
-            D3.select('#nn-show-math').html(currentDebugNode.genMath(state.activationKey));
+            D3.select('#nn-show-math').html(currentDebugNode.id + ' = ' + currentDebugNode.genMath(state.activationKey));
         } else {
             D3.select('#nn-show-math').html('');
         }

@@ -50,7 +50,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 };
 define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", "./neuralnetwork.uistate", "log", "./neuralnetwork.msg", "util"], function (require, exports, H, neuralnetwork_nn_1, neuralnetwork_uistate_1, LOG, MSG, UTIL) {
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getNetwork = exports.saveNN2Blockly = exports.programWasReplaced = exports.drawNetworkUIForTabExplore = exports.reconstructNNIncludingUI = exports.resetUiOnTerminate = exports.runNNEditorForTabExplore = exports.runNNEditor = exports.setupNN = void 0;
+    exports.getNetwork = exports.saveNN2Blockly = exports.programWasReplaced = exports.resetSelections = exports.drawNetworkUIForTabExplore = exports.reconstructNNIncludingUI = exports.resetUiOnTerminate = exports.runNNEditorForTabExplore = exports.runNNEditor = exports.setupNN = void 0;
     var NodeType;
     (function (NodeType) {
         NodeType[NodeType["INPUT"] = 0] = "INPUT";
@@ -488,7 +488,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                 }
             }
             if (exploreType == ExploreType.NEURON) {
-                if (currentDebugNode == node) {
+                if (currentDebugNode.id == node.id) {
                     drawNodeOutput(container, nodeGroup, node);
                 }
                 D3.select('#nn-show-next-neuron').html(flattenedNetworkWOInputs[currentDebugNodeIndex].id);
@@ -1119,6 +1119,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         flattenedNetworkWOInputs = null;
         isInputSet = false;
     }
+    exports.resetSelections = resetSelections;
     function runNameCard(node, coordinates) {
         if (node.inputLinks.length !== 0 && node.outputs.length !== 0) {
             return; // only input and output neurons can change their name
@@ -1266,10 +1267,10 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                 }
             });
             if (focusNode !== undefined && focusNode !== null) {
-                D3.select('#nn-show-math').html(focusNode.genMath(state.activationKey));
+                D3.select('#nn-show-math').html(focusNode.id + ' = ' + focusNode.genMath(state.activationKey));
             }
             else if (exploreType == ExploreType.NEURON) {
-                D3.select('#nn-show-math').html(currentDebugNode.genMath(state.activationKey));
+                D3.select('#nn-show-math').html(currentDebugNode.id + ' = ' + currentDebugNode.genMath(state.activationKey));
             }
             else {
                 D3.select('#nn-show-math').html('');
