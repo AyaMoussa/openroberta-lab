@@ -40,7 +40,7 @@ export function init() {
     $('#tabNNexplore').onWrap(
         'show.bs.tab',
         function (e) {
-            $('#nnExplore').show();
+            $('#nn-explore').show();
             GUISTATE_C.setView('tabNNexplore');
         },
         'show tabNNexplore'
@@ -59,7 +59,7 @@ export function init() {
         'hide.bs.tab',
         function (e) {
             saveNN2Blockly();
-            $('#nnExplore').hide();
+            $('#nn-explore').hide();
         },
         'hide tabNNexplore'
     );

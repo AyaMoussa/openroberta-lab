@@ -19,7 +19,7 @@ define(["require", "exports", "guiState.controller", "neuralnetwork.ui", "jquery
         }, 'hide tabNN');
         $('#tabNN').onWrap('hidden.bs.tab', function (e) { }, 'hidden tabNN');
         $('#tabNNexplore').onWrap('show.bs.tab', function (e) {
-            $('#nnExplore').show();
+            $('#nn-explore').show();
             GUISTATE_C.setView('tabNNexplore');
         }, 'show tabNNexplore');
         $('#tabNNexplore').onWrap('shown.bs.tab', function (e) {
@@ -28,7 +28,7 @@ define(["require", "exports", "guiState.controller", "neuralnetwork.ui", "jquery
         }, 'shown tabNNexplore');
         $('#tabNNexplore').onWrap('hide.bs.tab', function (e) {
             saveNN2Blockly();
-            $('#nnExplore').hide();
+            $('#nn-explore').hide();
         }, 'hide tabNNexplore');
         $('#tabNNexplore').onWrap('hidden.bs.tab', function (e) { }, 'hidden tabNNexplore');
         $('#tabNNlearn').onWrap('show.bs.tab', function (e) {
