@@ -69,7 +69,7 @@ export function init() {
     $('#tabNNlearn').onWrap(
         'show.bs.tab',
         function (e) {
-            $('#nnLearn').show();
+            $('#nn-learn').show();
             GUISTATE_C.setView('tabNNlearn');
         },
         'show tabNNlearn'
@@ -79,7 +79,7 @@ export function init() {
         'shown.bs.tab',
         function (e) {
             GUISTATE_C.setProgramSaved(false);
-            mkNNfromNNStepDataAndRunNNEditor();
+            mkNNfromNNStepDataAndRunNNEditorForTabLearn();
         },
         'shown tabNNlearn'
     );
@@ -88,7 +88,7 @@ export function init() {
         'hide.bs.tab',
         function (e) {
             saveNN2Blockly();
-            $('#nnLearn').hide();
+            $('#nn-learn').hide();
         },
         'hide tabNNlearn'
     );
@@ -145,8 +145,17 @@ export function mkNNfromNNStepDataAndRunNNEditorForTabExplore() {
     NN_UI.runNNEditorForTabExplore(GUISTATE_C.hasSim());
 }
 
+/**
+ * create the NN from the program XML and start the NN editor for tab NN-Learn. Called, when the NN-Learn tab is opened
+ */
+export function mkNNfromNNStepDataAndRunNNEditorForTabLearn() {
+    mkNNfromProgramStartBlock();
+    NN_UI.runNNEditorForTabLearn(GUISTATE_C.hasSim());
+}
+
 export function reloadViews() {
     NN_UI.resetSelections();
     NN_UI.reconstructNNIncludingUI();
     NN_UI.drawNetworkUIForTabExplore();
+    NN_UI.drawNetworkUIForTabLearn();
 }

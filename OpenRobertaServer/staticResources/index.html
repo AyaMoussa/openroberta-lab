@@ -272,7 +272,7 @@ limitations under the License.
                         class='menuTab'>Neural Network - Explore</span></a>
                 </li>
                 <li id='tabNNlearnctxt' style='display: none;'>
-                    <a data-toggle='tab' id='tabNNlearn' href='#nnLearn'> <span lkey='Blockly.Msg.TAB_NN_LEARN' class='menuTab'>Neural Network - Learn</span></a>
+                    <a data-toggle='tab' id='tabNNlearn' href='#nn-learn'> <span lkey='Blockly.Msg.TAB_NN_LEARN' class='menuTab'>Neural Network - Learn</span></a>
                 </li>
                 <li class='hidden'><a data-toggle='tab' id='tabProgList' href='#progList'>Listing of programs</a></li>
                 <li class='hidden'><a data-toggle='tab' id='tabConfList' href='#confList'>Listing of configurations</a></li>
@@ -805,37 +805,75 @@ limitations under the License.
                 </div>
             </div>
         </div>
-        <!--        <div id='nnLrn' style='display: none;' class='tab-pane fade'>-->
-        <!--            <button class='nn-btn' id='goto-sim'>-->
-        <!--                <span class='typcn typcn-simulation'></span>-->
-        <!--            </button>-->
-        <!--            <div class='nn-explore-btns'>-->
-        <!--                <button class='nn-explore-btn' id='nn-learn-run'>-->
-        <!--                    <span class='blbtn typcn typcn-media-play-outline debug'></span>-->
-        <!--                </button>-->
-        <!--                <button class='nn-explore-btn' id='nn-learn-debug'>-->
-        <!--                    <span class='blbtn typcn typcn-arrow-forward-outline debug'></span>-->
-        <!--                </button>-->
-        <!--                <button class='nn-explore-btn' id='nn-learn-stop'>-->
-        <!--                    <span class='blbtn typcn typcn-media-stop debug'></span>-->
-        <!--                </button>-->
-        <!--                <button class='nn-explore-btn' id='nn-upload'>-->
-        <!--                    <span class='blbtn typcn typcn-upload-outline'></span>-->
-        <!--                </button>-->
-        <!--            </div>-->
-        <!--            <div id='nn-top-controls'>-->
-        <!--                <div class='nn-control'>-->
-        <!--                    <span id='nn-regularization-label' class='nn-bold'></span>-->
-        <!--                    <div class='select'>-->
-        <!--                        <select id='regularizations'>-->
-        <!--                            <option value='none'>None</option>-->
-        <!--                            <option value='L1'>L1</option>-->
-        <!--                            <option value='L2'>L2</option>-->
-        <!--                        </select>-->
-        <!--                    </div>-->
-        <!--                </div>-->
-        <!--            </div>-->
-        <!--        </div>-->
+        <div id='nn-learn' style='display: none;' class='tab-pane fade'>
+            <button class='nn-btn' id='learn-goto-sim'>
+                <span class='typcn typcn-simulation'></span>
+            </button>
+            <div class='nn-learn-btns'>
+                <button class='nn-explore-btn' id='nn-learn-run'>
+                    <span class='typcn typcn-media-play-outline debug'></span>
+                </button>
+                <button class='nn-explore-btn' id='nn-learn-debug'>
+                    <span class='typcn typcn-arrow-forward-outline debug'></span>
+                </button>
+                <button class='nn-explore-btn' id='nn-learn-stop'>
+                    <span class='typcn typcn-media-stop debug'></span>
+                </button>
+                <button class='nn-explore-btn' id='nn-learn-upload'>
+                    <span class='typcn typcn-upload-outline'></span>
+                </button>
+            </div>
+            <div id='nn-learn-top-controls'>
+                <div id='nn-learn-select-click' class='nn-control'>
+                    <span id='nn-learn-focus-label' class='nn-bold'></span>
+                    <div class='select'>
+                        <select class='nn-selection' id='nn-learn-focus'>
+                            <option value='CLICK_NODE'></option>
+                            <option value='SHOW_ALL' selected='true'></option>
+                        </select>
+                    </div>
+                </div>
+                <div id='nn-get-learning-rate-all' class='nn-control'>
+                    <span id='nn-get-learning-rate-label' class='nn-bold'></span>
+                    <div>
+                        <input class='nn-input' id='nn-get-learning-rate' />
+                        <span class='nn-learning-rate-finished-button'>
+                            <button class='nn-btn' id='nn-learning-rate-finished-button'>
+                                <span class='typcn typcn-tick'></span>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <div id='nn-get-regularization-rate-all' class='nn-control'>
+                    <span id='nn-get-regularization-rate-label' class='nn-bold'></span>
+                    <div>
+                        <input class='nn-input' id='nn-get-regularization-rate' />
+                        <span class='nn-regularization-rate-finished-button'>
+                            <button class='nn-btn' id='nn-regularization-rate-finished-button'>
+                                <span class='typcn typcn-tick'></span>
+                            </button>
+                        </span>
+                    </div>
+                </div>
+                <!--                <div class='nn-control'>-->
+                <!--                    <span id='nn-regularization-label' class='nn-bold'></span>-->
+                <!--                    <div class='select'>-->
+                <!--                        <select id='regularizations'>-->
+                <!--                            <option value='none'>None</option>-->
+                <!--                            <option value='L1'>L1</option>-->
+                <!--                            <option value='L2'>L2</option>-->
+                <!--                        </select>-->
+                <!--                    </div>-->
+                <!--                </div>-->
+            </div>
+            <div id='nn-learn-main-part'>
+                <div id='nn-learn-features'>
+                    <div id='nn-learn-network'>
+                        <svg id='nn-learn-svg'></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!--  ################## END TABS ################## -->

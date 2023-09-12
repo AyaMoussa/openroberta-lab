@@ -1,21 +1,21 @@
-#nn, #nn-explore {
+#nn, #nn-explore, #nn-learn {
     width: 100%;
     height: 100%;
 }
 
-#nn .nn-middle-size, #nnExplore .nn-middle-size {
+#nn .nn-middle-size, #nn-explore .nn-middle-size {
     font-size: 20px;
 }
 
-#nn .nn-bold, #nnExplore .nn-bold {
+#nn .nn-bold, #nn-explore .nn-bold {
     font-weight: bold;
 }
 
-#nn .nn-large-size, #nnExplore .nn-large-size {
+#nn .nn-large-size, #nn-explore .nn-large-size {
     font-size: 28px;
 }
 
-#nn-top-controls, #nn-explore-top-controls {
+#nn-top-controls, #nn-explore-top-controls, #nn-learn-top-controls {
     width: 100%;
     border-bottom: 1px solid #ddd;
     padding: 16px 0;
@@ -30,7 +30,7 @@
     justify-content: space-between;
 }
 
-#nn-top-controls .nn-control, #nn-explore-top-controls .nn-control {
+#nn-top-controls .nn-control, #nn-explore-top-controls .nn-control, #nn-learn-top-controls .nn-control {
     flex-grow: 1;
     margin-left: 10px;
     margin-top: 6px;
@@ -61,7 +61,7 @@
     position: relative;
 }
 
-.nn-explore-btns {
+.nn-explore-btns, .nn-learn-btns {
     position: absolute;
     left: 10px;
     bottom: 10px;
@@ -78,15 +78,15 @@
     background: white;
 }
 
-.nn-explore-btn > span {
+.nn-explore-btn > span, .nn-learn-btn > span {
     font-size: 36px;
 }
 
-.nn-explore-btn:hover {
+.nn-explore-btn:hover, .nn-learn-btn:hover {
     background-color: #BACC1E;
 }
 
-#goto-sim, #explore-goto-sim {
+#goto-sim, #explore-goto-sim, #learn-goto-sim {
     position: absolute;
     min-height: 48px;
     max-width: 48px;
@@ -102,7 +102,7 @@
     z-index: 9999;
 }
 
-#goto-sim:hover, #explore-goto-sim:hover {
+#goto-sim:hover, #explore-goto-sim:hover, #learn-goto-sim:hover {
     background-color: #BACC1E;
 }
 
@@ -130,7 +130,7 @@
     max-width: 300px;
 }
 
-#nn-main-part, #nn-explore-main-part {
+#nn-main-part, #nn-explore-main-part, #nn-learn-main-part {
     display: -webkit-box;
     display: -moz-box;
     display: -ms-flexbox;
@@ -144,11 +144,11 @@
     position: relative;
 }
 
-#nn-main-part .output .mdl-checkbox__label.label, #nn-explore-main-part .output .mdl-checkbox__label.label {
+#nn-main-part .output .mdl-checkbox__label.label, #nn-explore-main-part .output .mdl-checkbox__label.label, #nn-learn-main-part .output .mdl-checkbox__label.label {
     line-height: 1.7em;
 }
 
-#nn-features, #nn-explore-features {
+#nn-features, #nn-explore-features, #nn-learn-features {
     width: 10%;
     position: relative;
 }
@@ -205,13 +205,13 @@ button.nn-btn:hover {
     margin-right: 4px;
 }
 
-#nn-features svg .main-label, #nn-explore-features svg .main-label {
+#nn-features svg .main-label, #nn-explore-features svg .main-label, #nn-learn-features svg .main-label {
     font-size: 13px;
     fill: #333;
     font-weight: 300;
 }
 
-#nn-features .nn-showval, #nn-explore-features .nn-showval {
+#nn-features .nn-showval, #nn-explore-features .nn-showval, #nn-learn-features .nn-showval {
     display: block;
     font-size: 16px;
     font-weight: bold;
@@ -219,28 +219,28 @@ button.nn-btn:hover {
     cursor: pointer;
 }
 
-#nn-features svg #markerArrow, #nn-explore-features svg #markerArrow {
+#nn-features svg #markerArrow, #nn-explore-features svg #markerArrow, #nn-learn-features svg #markerArrow {
     fill: black;
     stroke: black;
     stroke-opacity: 0.2;
 }
 
-#nn-features .node_input rect, #nn-explore-features .node_input rect {
+#nn-features .node_input rect, #nn-explore-features .node_input rect, #nn-learn-features .node_input rect {
     cursor: default;
     fill: rgb(143, 164, 2);
 }
 
-#nn-features .node_hidden rect, #nn-explore-features .node_hidden rect {
+#nn-features .node_hidden rect, #nn-explore-features .node_hidden rect, #nn-learn-features .node_hidden rect {
     cursor: default;
     fill: lightgrey;
 }
 
-#nn-features .node_output rect, #nn-explore-features .node_output rect {
+#nn-features .node_output rect, #nn-explore-features .node_output rect, #nn-learn-features .node_output rect {
     cursor: default;
     fill: rgb(242, 148, 0);
 }
 
-#nn-features .core .link, #nn-explore-features .core .link {
+#nn-features .core .link, #nn-explore-features .core .link, #nn-learn-features .core .link {
     stroke-dasharray: 9 1;
     stroke-dashoffset: 1;
     /* webkit-animation: 0.5s linear 0s infinite flowing; */
@@ -281,7 +281,7 @@ button.nn-btn:hover {
     cursor: pointer;
 }
 
-#nn-features .canvas canvas, #nn-explore-features .canvas canvas {
+#nn-features .canvas canvas, #nn-explore-features .canvas canvas, #nn-learn-features .canvas canvas {
     position: absolute;
     top: -2px;
     left: -2px;
@@ -332,7 +332,7 @@ button.nn-btn:hover {
     top: 5px;
 }
 
-.nn-shape-finished-button {
+.nn-shape-finished-button, .nn-learning-rate-finished-button, .nn-regularization-rate-finished-button {
     position: relative;
     top: 4px;
     left: -4px;

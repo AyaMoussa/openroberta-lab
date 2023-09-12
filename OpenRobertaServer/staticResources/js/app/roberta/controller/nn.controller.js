@@ -1,6 +1,6 @@
 define(["require", "exports", "guiState.controller", "neuralnetwork.ui", "jquery", "util", "jquery-validate"], function (require, exports, GUISTATE_C, NN_UI, $, UTIL) {
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.reloadViews = exports.mkNNfromNNStepDataAndRunNNEditorForTabExplore = exports.mkNNfromNNStepDataAndRunNNEditor = exports.mkNNfromProgramStartBlock = exports.saveNN2Blockly = exports.programWasReplaced = exports.init = void 0;
+    exports.reloadViews = exports.mkNNfromNNStepDataAndRunNNEditorForTabLearn = exports.mkNNfromNNStepDataAndRunNNEditorForTabExplore = exports.mkNNfromNNStepDataAndRunNNEditor = exports.mkNNfromProgramStartBlock = exports.saveNN2Blockly = exports.programWasReplaced = exports.init = void 0;
     /**
      * initialize the callbacks needed by the NN tab. Called once at front end init time
      */
@@ -32,16 +32,16 @@ define(["require", "exports", "guiState.controller", "neuralnetwork.ui", "jquery
         }, 'hide tabNNexplore');
         $('#tabNNexplore').onWrap('hidden.bs.tab', function (e) { }, 'hidden tabNNexplore');
         $('#tabNNlearn').onWrap('show.bs.tab', function (e) {
-            $('#nnLearn').show();
+            $('#nn-learn').show();
             GUISTATE_C.setView('tabNNlearn');
         }, 'show tabNNlearn');
         $('#tabNNlearn').onWrap('shown.bs.tab', function (e) {
             GUISTATE_C.setProgramSaved(false);
-            mkNNfromNNStepDataAndRunNNEditor();
+            mkNNfromNNStepDataAndRunNNEditorForTabLearn();
         }, 'shown tabNNlearn');
         $('#tabNNlearn').onWrap('hide.bs.tab', function (e) {
             saveNN2Blockly();
-            $('#nnLearn').hide();
+            $('#nn-learn').hide();
         }, 'hide tabNNlearn');
         $('#tabNNlearn').onWrap('hidden.bs.tab', function (e) { }, 'hidden tabNNlearn');
     }
@@ -97,10 +97,19 @@ define(["require", "exports", "guiState.controller", "neuralnetwork.ui", "jquery
         NN_UI.runNNEditorForTabExplore(GUISTATE_C.hasSim());
     }
     exports.mkNNfromNNStepDataAndRunNNEditorForTabExplore = mkNNfromNNStepDataAndRunNNEditorForTabExplore;
+    /**
+     * create the NN from the program XML and start the NN editor for tab NN-Learn. Called, when the NN-Learn tab is opened
+     */
+    function mkNNfromNNStepDataAndRunNNEditorForTabLearn() {
+        mkNNfromProgramStartBlock();
+        NN_UI.runNNEditorForTabLearn(GUISTATE_C.hasSim());
+    }
+    exports.mkNNfromNNStepDataAndRunNNEditorForTabLearn = mkNNfromNNStepDataAndRunNNEditorForTabLearn;
     function reloadViews() {
         NN_UI.resetSelections();
         NN_UI.reconstructNNIncludingUI();
         NN_UI.drawNetworkUIForTabExplore();
+        NN_UI.drawNetworkUIForTabLearn();
     }
     exports.reloadViews = reloadViews;
 });

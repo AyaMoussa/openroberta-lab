@@ -50,7 +50,7 @@ var __spreadArray = (this && this.__spreadArray) || function (to, from, pack) {
 };
 define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", "./neuralnetwork.uistate", "log", "log", "./neuralnetwork.msg", "util"], function (require, exports, H, neuralnetwork_nn_1, neuralnetwork_uistate_1, LOG, log_1, MSG, UTIL) {
     Object.defineProperty(exports, "__esModule", { value: true });
-    exports.getNetwork = exports.saveNN2Blockly = exports.programWasReplaced = exports.resetSelections = exports.drawNetworkUIForTabExplore = exports.reconstructNNIncludingUI = exports.resetUiOnTerminate = exports.runNNEditorForTabExplore = exports.runNNEditor = exports.setupNN = void 0;
+    exports.getNetwork = exports.saveNN2Blockly = exports.programWasReplaced = exports.resetSelections = exports.drawNetworkUIForTabLearn = exports.drawNetworkUIForTabExplore = exports.reconstructNNIncludingUI = exports.resetUiOnTerminate = exports.runNNEditorForTabLearn = exports.runNNEditorForTabExplore = exports.runNNEditor = exports.setupNN = void 0;
     var NodeType;
     (function (NodeType) {
         NodeType[NodeType["INPUT"] = 0] = "INPUT";
@@ -185,6 +185,9 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                             hideAllCards();
                             drawNetworkUI();
                             $('#nn-explore-focus')
+                                .val(focusStyle == FocusStyle.CLICK_WEIGHT_BIAS ? 'SHOW_ALL' : this.value)
+                                .change();
+                            $('#nn-learn-focus')
                                 .val(focusStyle == FocusStyle.CLICK_WEIGHT_BIAS ? 'SHOW_ALL' : this.value)
                                 .change();
                         });
@@ -327,6 +330,90 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         });
     }
     exports.runNNEditorForTabExplore = runNNEditorForTabExplore;
+    function runNNEditorForTabLearn(hasSim) {
+        return __awaiter(this, void 0, void 0, function () {
+            function updateLearningRateListener() { }
+            function updateRegularizationRateListener() { }
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        tabType = TabType.LEARN;
+                        return [4 /*yield*/, new Promise(function (resolve_3, reject_3) { require(['d3'], resolve_3, reject_3); })];
+                    case 1:
+                        D3 = _a.sent();
+                        if (hasSim) {
+                            D3.select('#learn-goto-sim').style('visibility', 'visible');
+                            D3.select('#learn-goto-sim').on('click', function () {
+                                $.when($('#tabProgram').trigger('click')).done(function () {
+                                    $('#simButton').trigger('click');
+                                });
+                            });
+                        }
+                        else {
+                            D3.select('#learn-goto-sim').style('visibility', 'hidden');
+                        }
+                        D3.select('#nn-learn-focus').on('change', function () {
+                            focusStyle = FocusStyle[this.value];
+                            if (focusStyle === undefined || focusStyle === null) {
+                                focusStyle = FocusStyle.SHOW_ALL;
+                            }
+                            if (focusStyle !== FocusStyle.CLICK_NODE) {
+                                focusNode = null;
+                            }
+                            hideAllCards();
+                            drawNetworkUIForTabLearn();
+                            $('#nn-focus')
+                                .val(this.value)
+                                .change();
+                        });
+                        D3.select('#nn-learn-run').on('click', function () {
+                            exploreType = ExploreType.RUN;
+                            network.forwardProp();
+                            currentDebugLayer = 0;
+                            currentDebugNodeIndex = 0;
+                            hideAllCards();
+                            drawNetworkUIForTabLearn();
+                        });
+                        D3.select('#nn-learn-debug').on('click', function () {
+                            exploreType = ExploreType.LAYER;
+                            isInputSet = true;
+                            var networkImpl = network.getLayerAndNodeArray();
+                            if (currentDebugLayer < networkImpl.length - 1) {
+                                currentDebugLayer++;
+                            }
+                            else {
+                                currentDebugLayer = 1;
+                            }
+                            network.forwardProp();
+                            currentDebugNodeIndex = 0;
+                            hideAllCards();
+                            drawNetworkUIForTabLearn();
+                        });
+                        D3.select('#nn-learn-stop').on('click', function () {
+                            exploreType = ExploreType.STOP;
+                            isInputSet = false;
+                            hideAllCards();
+                            drawNetworkUIForTabLearn();
+                        });
+                        D3.select('#nn-get-learning-rate').on('change', updateLearningRateListener);
+                        D3.select('#nn-learning-rate-finished-button').on('click', updateLearningRateListener);
+                        D3.select('#nn-get-regularization-rate').on('change', updateRegularizationRateListener);
+                        D3.select('#nn-regularization-rate-finished-button').on('click', updateRegularizationRateListener);
+                        // Listen for css-responsive changes and redraw the svg network.
+                        window.addEventListener('resize', function () {
+                            hideAllCards();
+                            drawNetworkUIForTabLearn();
+                        });
+                        resetSelections();
+                        hideAllCards();
+                        makeNetworkFromState();
+                        drawNetworkUIForTabLearn();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    }
+    exports.runNNEditorForTabLearn = runNNEditorForTabLearn;
     function resetUiOnTerminate() {
         hideAllCards();
         focusNode = null;
@@ -346,6 +433,15 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         drawTheNetwork();
     }
     exports.drawNetworkUIForTabExplore = drawNetworkUIForTabExplore;
+    function drawNetworkUIForTabLearn() {
+        $('#nn-learn-focus-label').text(MSG.get('NN_EXPLORE_FOCUS_OPTION'));
+        $('#nn-learn-focus [value="CLICK_NODE"]').text(MSG.get('NN_EXPLORE_CLICK_NODE'));
+        $('#nn-learn-focus [value="SHOW_ALL"]').text(MSG.get('NN_EXPLORE_SHOW_ALL'));
+        $('#nn-get-regularization-rate-label').text(MSG.get('regularization rate'));
+        $('#nn-get-learning-rate-label').text(MSG.get('learning rate'));
+        drawTheNetwork();
+    }
+    exports.drawNetworkUIForTabLearn = drawNetworkUIForTabLearn;
     function drawNetworkUI() {
         $('#nn-activation-label').text(MSG.get('NN_ACTIVATION'));
         $('#nn-regularization-label').text(MSG.get('NN_REGULARIZATION'));
@@ -441,7 +537,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                 // Draw links.
                 for (var j = 0; j < node.inputLinks.length; j++) {
                     var link = node.inputLinks[j];
-                    if ((tabType == TabType.EXPLORE && link.weight.get() != 0) || tabType == TabType.DEFINE) {
+                    if ((tabType == TabType.EXPLORE && link.weight.get() != 0) || tabType == TabType.DEFINE || tabType == TabType.LEARN) {
                         drawLink(link, node2coord, networkImpl, container, j === 0, j, node.inputLinks.length);
                     }
                 }
@@ -461,7 +557,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                 // Draw links.
                 for (var i = 0; i < node.inputLinks.length; i++) {
                     var link = node.inputLinks[i];
-                    if ((tabType == TabType.EXPLORE && link.weight.get() != 0) || tabType == TabType.DEFINE) {
+                    if ((tabType == TabType.EXPLORE && link.weight.get() != 0) || tabType == TabType.DEFINE || tabType == TabType.LEARN) {
                         drawLink(link, node2coord, networkImpl, container, j === 0, j, node.inputLinks.length);
                     }
                 }

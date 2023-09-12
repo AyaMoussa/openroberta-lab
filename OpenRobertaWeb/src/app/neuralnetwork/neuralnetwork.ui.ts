@@ -95,6 +95,9 @@ export async function runNNEditor(hasSim: boolean) {
         $('#nn-explore-focus')
             .val(focusStyle == FocusStyle.CLICK_WEIGHT_BIAS ? 'SHOW_ALL' : (this as HTMLSelectElement).value)
             .change();
+        $('#nn-learn-focus')
+            .val(focusStyle == FocusStyle.CLICK_WEIGHT_BIAS ? 'SHOW_ALL' : (this as HTMLSelectElement).value)
+            .change();
     });
 
     D3.select('#nn-add-layers').on('click', () => {
@@ -291,6 +294,91 @@ export async function runNNEditorForTabExplore(hasSim: boolean) {
     return;
 }
 
+export async function runNNEditorForTabLearn(hasSim: boolean) {
+    tabType = TabType.LEARN;
+    D3 = await import('d3');
+    if (hasSim) {
+        D3.select('#learn-goto-sim').style('visibility', 'visible');
+        D3.select('#learn-goto-sim').on('click', () => {
+            $.when($('#tabProgram').trigger('click')).done(function () {
+                $('#simButton').trigger('click');
+            });
+        });
+    } else {
+        D3.select('#learn-goto-sim').style('visibility', 'hidden');
+    }
+
+    D3.select('#nn-learn-focus').on('change', function () {
+        focusStyle = FocusStyle[(this as HTMLSelectElement).value];
+        if (focusStyle === undefined || focusStyle === null) {
+            focusStyle = FocusStyle.SHOW_ALL;
+        }
+        if (focusStyle !== FocusStyle.CLICK_NODE) {
+            focusNode = null;
+        }
+        hideAllCards();
+        drawNetworkUIForTabLearn();
+        $('#nn-focus')
+            .val((this as HTMLSelectElement).value)
+            .change();
+    });
+
+    D3.select('#nn-learn-run').on('click', () => {
+        exploreType = ExploreType.RUN;
+        network.forwardProp();
+        currentDebugLayer = 0;
+        currentDebugNodeIndex = 0;
+        hideAllCards();
+        drawNetworkUIForTabLearn();
+    });
+
+    D3.select('#nn-learn-debug').on('click', () => {
+        exploreType = ExploreType.LAYER;
+        isInputSet = true;
+        const networkImpl = network.getLayerAndNodeArray();
+        if (currentDebugLayer < networkImpl.length - 1) {
+            currentDebugLayer++;
+        } else {
+            currentDebugLayer = 1;
+        }
+        network.forwardProp();
+        currentDebugNodeIndex = 0;
+        hideAllCards();
+        drawNetworkUIForTabLearn();
+    });
+
+    D3.select('#nn-learn-stop').on('click', () => {
+        exploreType = ExploreType.STOP;
+        isInputSet = false;
+        hideAllCards();
+        drawNetworkUIForTabLearn();
+    });
+
+    D3.select('#nn-get-learning-rate').on('change', updateLearningRateListener);
+
+    D3.select('#nn-learning-rate-finished-button').on('click', updateLearningRateListener);
+
+    D3.select('#nn-get-regularization-rate').on('change', updateRegularizationRateListener);
+
+    D3.select('#nn-regularization-rate-finished-button').on('click', updateRegularizationRateListener);
+
+    function updateLearningRateListener() {}
+
+    function updateRegularizationRateListener() {}
+
+    // Listen for css-responsive changes and redraw the svg network.
+    window.addEventListener('resize', () => {
+        hideAllCards();
+        drawNetworkUIForTabLearn();
+    });
+
+    resetSelections();
+    hideAllCards();
+    makeNetworkFromState();
+    drawNetworkUIForTabLearn();
+    return;
+}
+
 export function resetUiOnTerminate() {
     hideAllCards();
     focusNode = null;
@@ -307,6 +395,16 @@ export function drawNetworkUIForTabExplore() {
     $('#nn-explore-focus [value="SHOW_ALL"]').text(MSG.get('NN_EXPLORE_SHOW_ALL'));
     $('#nn-show-math-label').text(MSG.get('NN_SHOW_MATH'));
     $('#nn-show-next-neuron-label').text(MSG.get('NN_EXPLORE_SHOW_NEXT_NEURON'));
+
+    drawTheNetwork();
+}
+
+export function drawNetworkUIForTabLearn() {
+    $('#nn-learn-focus-label').text(MSG.get('NN_EXPLORE_FOCUS_OPTION'));
+    $('#nn-learn-focus [value="CLICK_NODE"]').text(MSG.get('NN_EXPLORE_CLICK_NODE'));
+    $('#nn-learn-focus [value="SHOW_ALL"]').text(MSG.get('NN_EXPLORE_SHOW_ALL'));
+    $('#nn-get-regularization-rate-label').text(MSG.get('regularization rate'));
+    $('#nn-get-learning-rate-label').text(MSG.get('learning rate'));
 
     drawTheNetwork();
 }
@@ -421,7 +519,7 @@ function drawTheNetwork() {
             // Draw links.
             for (let j = 0; j < node.inputLinks.length; j++) {
                 let link = node.inputLinks[j];
-                if ((tabType == TabType.EXPLORE && link.weight.get() != 0) || tabType == TabType.DEFINE) {
+                if ((tabType == TabType.EXPLORE && link.weight.get() != 0) || tabType == TabType.DEFINE || tabType == TabType.LEARN) {
                     drawLink(link, node2coord, networkImpl, container, j === 0, j, node.inputLinks.length);
                 }
             }
@@ -442,7 +540,7 @@ function drawTheNetwork() {
             // Draw links.
             for (let i = 0; i < node.inputLinks.length; i++) {
                 let link = node.inputLinks[i];
-                if ((tabType == TabType.EXPLORE && link.weight.get() != 0) || tabType == TabType.DEFINE) {
+                if ((tabType == TabType.EXPLORE && link.weight.get() != 0) || tabType == TabType.DEFINE || tabType == TabType.LEARN) {
                     drawLink(link, node2coord, networkImpl, container, j === 0, j, node.inputLinks.length);
                 }
             }
