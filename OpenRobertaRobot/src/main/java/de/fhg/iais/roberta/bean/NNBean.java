@@ -148,7 +148,6 @@ public class NNBean implements IProjectBean {
                 this.bias = netStateDefinition.getJSONArray("biases");
                 netStateDefinition.getJSONArray("inputs").forEach(i -> inputNeurons.add((String) i));
                 netStateDefinition.getJSONArray("hiddenNeurons").forEach(h -> {
-                    JSONArray hiddenLayer = (JSONArray) h;
                     List<String> hiddenLayerNeurons = new ArrayList<>();
                     ((JSONArray) h).forEach(neuron -> hiddenLayerNeurons.add((String) neuron));
                     hiddenNeurons.add(hiddenLayerNeurons);

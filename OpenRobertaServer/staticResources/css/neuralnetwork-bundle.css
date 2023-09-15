@@ -296,6 +296,10 @@ button.nn-btn:hover {
     left: 0;
 }
 
+#nn-explore-network {
+    position: absolute;
+}
+
 #nn-editCard {
     display: none;
     position: absolute;

@@ -97,6 +97,16 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
     function setupNN(stateFromStartBlock) {
         rememberProgramWasReplaced = false;
         state = new neuralnetwork_uistate_1.State(stateFromStartBlock);
+        // wrapper for old NN programs without hiddenNeurons
+        if (state.networkShape.length != 0 && state.hiddenNeurons.length == 0) {
+            for (var i = 0; i < state.numHiddenLayers; i++) {
+                state.hiddenNeurons.push([]);
+                for (var j = 0; j < state.networkShape[i]; j++) {
+                    var id = selectDefaultId(true, i + 1);
+                    state.hiddenNeurons[i].push(id);
+                }
+            }
+        }
         makeNetworkFromState();
     }
     exports.setupNN = setupNN;
@@ -108,16 +118,14 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                     .toString()
                     .trim()
                     .split(',')
-                    .filter(function (x) { return !Number.isNaN(x); })
+                    .filter(function (x) { return !Number.isNaN(x) && Number(x) !== 0; })
                     .map(function (x) {
                     return Number(x) >= 10 ? 9 : Number(x);
                 });
                 {
                     var _a = [state.inputs, state.inputs.length], previousInputs = _a[0], previousInputsLength = _a[1];
                     state.inputs = [];
-                    if (val[0] >= 9) {
-                        return;
-                    }
+                    val[0] = val[0] >= 9 ? 9 : val[0];
                     for (var i = 0; i < val[0]; i++) {
                         if (i < previousInputsLength) {
                             state.inputs.push(previousInputs.shift());
@@ -129,11 +137,21 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                     }
                 }
                 {
+                    state.hiddenNeurons = [];
+                    state.networkShape = val.slice(1, -1).map(function (v) { return (v >= 9 ? 9 : v); });
+                    state.numHiddenLayers = state.networkShape.length;
+                    for (var i = 0; i < state.numHiddenLayers; i++) {
+                        state.hiddenNeurons.push([]);
+                        for (var j = 0; j < state.networkShape[i]; j++) {
+                            var id = selectDefaultId(true, i + 1);
+                            state.hiddenNeurons[i].push(id);
+                        }
+                    }
+                }
+                {
                     var _b = [state.outputs, state.outputs.length], previousOutputs = _b[0], previousOutputsLength = _b[1];
                     state.outputs = [];
-                    if (val[val.length - 1] >= 9) {
-                        return;
-                    }
+                    val[val.length - 1] = val[val.length - 1] >= 9 ? 9 : val[val.length - 1];
                     for (var i = 0; i < val[val.length - 1]; i++) {
                         if (i < previousOutputsLength) {
                             state.outputs.push(previousOutputs.shift());
@@ -144,8 +162,6 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                         }
                     }
                 }
-                state.networkShape = val.slice(1, -1);
-                state.numHiddenLayers = state.networkShape.length;
                 hideAllCards();
                 reconstructNNIncludingUI();
             }
@@ -200,7 +216,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                             state.networkShape[state.numHiddenLayers] = 2;
                             state.hiddenNeurons.push([]);
                             for (var i = 0; i < 2; i++) {
-                                var id = selectDefaultId(true);
+                                var id = selectDefaultId(true, state.numHiddenLayers + 1);
                                 state.hiddenNeurons[state.numHiddenLayers].push(id);
                             }
                             state.numHiddenLayers++;
@@ -304,6 +320,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                         D3.select('#nn-explore-run-neuron').on('click', function () {
                             exploreType = ExploreType.NEURON;
                             isInputSet = false;
+                            focusNode = null;
                             if (flattenedNetwork == null) {
                                 var networkImpl = network.getLayerAndNodeArray();
                                 flattenedNetwork = [].concat.apply([], networkImpl);
@@ -497,7 +514,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         D3.select("#nn".concat(tabSuffix, "-main-part")).selectAll('div.nn-plus-minus-neurons').remove();
         var nnD3 = D3.select("#nn".concat(tabSuffix))[0][0];
         var topControlD3 = D3.select("#nn".concat(tabSuffix, "-top-controls"))[0][0];
-        var mainPartHeight = nnD3.clientHeight - topControlD3.clientHeight - 50;
+        var mainPartHeight = nnD3.clientHeight - topControlD3.clientHeight + (tabType == TabType.DEFINE ? -50 : 50);
         // set the width of the svg container.
         var mainPart = D3.select("#nn".concat(tabSuffix, "-main-part"))[0][0];
         mainPart.setAttribute('style', 'height:' + mainPartHeight + 'px');
@@ -608,19 +625,19 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
             var theWholeNNSvgNode = D3.select("#nn".concat(tabSuffix, "-svg")).node();
             nodeGroup
                 .on('dblclick', function () {
-                tabCallback(node, D3.mouse(theWholeNNSvgNode));
+                tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
             })
                 .on('click', function () {
                 if (D3.event.shiftKey) {
-                    tabCallback(node, D3.mouse(theWholeNNSvgNode));
+                    tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
                 }
                 else if (inputNeuronNameEditingMode && node.inputLinks.length === 0) {
-                    tabCallback(node, D3.mouse(theWholeNNSvgNode));
+                    tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
                 }
                 else if (outputNeuronNameEditingMode && node.outputs.length === 0) {
-                    tabCallback(node, D3.mouse(theWholeNNSvgNode));
+                    tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
                 }
-                else if (node.inputLinks.length > 0) {
+                else {
                     if (focusNode == node) {
                         focusNode = null;
                     }
@@ -728,11 +745,12 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         function drawBias(container, nodeGroup, node) {
             var nodeId = node.id;
             if (focusStyle === FocusStyle.SHOW_ALL || (focusStyle === FocusStyle.CLICK_NODE && focusNode === node)) {
-                var biasRect = drawValue(nodeGroup, nodeId, -biasSize - 2, nodeSize + 2 * biasSize, node.bias.get(), node.bias.getWithPrecision(state.precision, state.weightSuppressMultOp));
+                var biasRect = drawValue(nodeGroup, "".concat(tabSuffix) + nodeId, -biasSize - 2, nodeSize + 2 * biasSize, node.bias.get(), node.bias.getWithPrecision(state.precision, state.weightSuppressMultOp));
                 biasRect.attr('class', 'nn-bias-click');
                 if (focusStyle !== FocusStyle.CLICK_NODE || focusNode === node) {
                     biasRect.on('click', function () {
                         D3.event.stopPropagation();
+                        tabType == TabType.DEFINE && runEditCard(node, D3.mouse(container.node()));
                     });
                 }
             }
@@ -748,6 +766,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                 if (focusStyle !== FocusStyle.CLICK_NODE || focusNode === node) {
                     biasRect.on('click', function () {
                         D3.event.stopPropagation();
+                        tabType == TabType.DEFINE && runEditCard(node, D3.mouse(container.node()));
                     });
                 }
             }
@@ -807,7 +826,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                         if (numNeurons >= 9) {
                             return;
                         }
-                        var id = selectDefaultId(true);
+                        var id = selectDefaultId(true, hiddenIdx_1 + 1);
                         state.hiddenNeurons[hiddenIdx_1].push(id);
                         state.networkShape[hiddenIdx_1]++;
                         hideAllCards();
@@ -1043,9 +1062,6 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
     }
     exports.resetSelections = resetSelections;
     function runNameCard(node, coordinates) {
-        // if (node.inputLinks.length !== 0 && node.outputs.length !== 0) {
-        //     return; // only input and output neurons can change their name
-        // }
         var nameCard = D3.select('#nn-nameCard');
         var finishedButton = D3.select('#nn-name-finished');
         var input = nameCard.select('input');
@@ -1201,10 +1217,10 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
             }
         }
     }
-    function selectDefaultId(forHidden) {
+    function selectDefaultId(forHidden, layerIdx) {
         var i = 1;
         var _loop_1 = function () {
-            var id = forHidden ? 'h' + i++ : 'n' + i++;
+            var id = forHidden ? 'h' + (layerIdx != null ? layerIdx : i++) + 'n' + i++ : 'n' + i++;
             if (forHidden) {
                 if (!state.hiddenNeurons.find(function (layer) { return layer.find(function (neuron) { return neuron === id; }); })) {
                     return { value: id };

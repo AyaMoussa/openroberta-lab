@@ -67,6 +67,16 @@ let tabType: TabType = null;
 export function setupNN(stateFromStartBlock: any) {
     rememberProgramWasReplaced = false;
     state = new State(stateFromStartBlock);
+    // wrapper for old NN programs without hiddenNeurons
+    if (state.networkShape.length != 0 && state.hiddenNeurons.length == 0) {
+        for (let i = 0; i < state.numHiddenLayers; i++) {
+            state.hiddenNeurons.push([]);
+            for (let j = 0; j < state.networkShape[i]; j++) {
+                const id = selectDefaultId(true, i + 1);
+                state.hiddenNeurons[i].push(id);
+            }
+        }
+    }
     makeNetworkFromState();
 }
 
@@ -109,7 +119,7 @@ export async function runNNEditor(hasSim: boolean) {
         state.networkShape[state.numHiddenLayers] = 2;
         state.hiddenNeurons.push([]);
         for (let i = 0; i < 2; i++) {
-            const id = selectDefaultId(true);
+            const id = selectDefaultId(true, state.numHiddenLayers + 1);
             state.hiddenNeurons[state.numHiddenLayers].push(id);
         }
         state.numHiddenLayers++;
@@ -149,16 +159,14 @@ export async function runNNEditor(hasSim: boolean) {
             .toString()
             .trim()
             .split(',')
-            .filter((x) => !Number.isNaN(x))
+            .filter((x) => !Number.isNaN(x) && Number(x) !== 0)
             .map((x) => {
                 return Number(x) >= 10 ? 9 : Number(x);
             });
         {
             let [previousInputs, previousInputsLength] = [state.inputs, state.inputs.length];
             state.inputs = [];
-            if (val[0] >= 9) {
-                return;
-            }
+            val[0] = val[0] >= 9 ? 9 : val[0];
             for (let i = 0; i < val[0]; i++) {
                 if (i < previousInputsLength) {
                     state.inputs.push(previousInputs.shift());
@@ -169,11 +177,21 @@ export async function runNNEditor(hasSim: boolean) {
             }
         }
         {
+            state.hiddenNeurons = [];
+            state.networkShape = val.slice(1, -1).map((v) => (v >= 9 ? 9 : v));
+            state.numHiddenLayers = state.networkShape.length;
+            for (let i = 0; i < state.numHiddenLayers; i++) {
+                state.hiddenNeurons.push([]);
+                for (let j = 0; j < state.networkShape[i]; j++) {
+                    const id = selectDefaultId(true, i + 1);
+                    state.hiddenNeurons[i].push(id);
+                }
+            }
+        }
+        {
             let [previousOutputs, previousOutputsLength] = [state.outputs, state.outputs.length];
             state.outputs = [];
-            if (val[val.length - 1] >= 9) {
-                return;
-            }
+            val[val.length - 1] = val[val.length - 1] >= 9 ? 9 : val[val.length - 1];
             for (let i = 0; i < val[val.length - 1]; i++) {
                 if (i < previousOutputsLength) {
                     state.outputs.push(previousOutputs.shift());
@@ -183,8 +201,6 @@ export async function runNNEditor(hasSim: boolean) {
                 }
             }
         }
-        state.networkShape = val.slice(1, -1);
-        state.numHiddenLayers = state.networkShape.length;
         hideAllCards();
         reconstructNNIncludingUI();
     }
@@ -267,6 +283,7 @@ export async function runNNEditorForTabExplore(hasSim: boolean) {
     D3.select('#nn-explore-run-neuron').on('click', () => {
         exploreType = ExploreType.NEURON;
         isInputSet = false;
+        focusNode = null;
         if (flattenedNetwork == null) {
             const networkImpl = network.getLayerAndNodeArray();
             flattenedNetwork = [].concat.apply([], networkImpl);
@@ -470,7 +487,7 @@ function drawTheNetwork() {
 
     const nnD3 = D3.select(`#nn${tabSuffix}`)[0][0] as HTMLDivElement;
     const topControlD3 = D3.select(`#nn${tabSuffix}-top-controls`)[0][0] as HTMLDivElement;
-    const mainPartHeight = nnD3.clientHeight - topControlD3.clientHeight - 50;
+    const mainPartHeight = nnD3.clientHeight - topControlD3.clientHeight + (tabType == TabType.DEFINE ? -50 : 50);
 
     // set the width of the svg container.
     const mainPart = D3.select(`#nn${tabSuffix}-main-part`)[0][0] as HTMLDivElement;
@@ -595,16 +612,16 @@ function drawTheNetwork() {
         let theWholeNNSvgNode = D3.select(`#nn${tabSuffix}-svg`).node();
         nodeGroup
             .on('dblclick', function () {
-                tabCallback(node, D3.mouse(theWholeNNSvgNode));
+                tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
             })
             .on('click', function () {
                 if ((D3.event as any).shiftKey) {
-                    tabCallback(node, D3.mouse(theWholeNNSvgNode));
+                    tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
                 } else if (inputNeuronNameEditingMode && node.inputLinks.length === 0) {
-                    tabCallback(node, D3.mouse(theWholeNNSvgNode));
+                    tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
                 } else if (outputNeuronNameEditingMode && node.outputs.length === 0) {
-                    tabCallback(node, D3.mouse(theWholeNNSvgNode));
-                } else if (node.inputLinks.length > 0) {
+                    tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
+                } else {
                     if (focusNode == node) {
                         focusNode = null;
                     } else {
@@ -736,7 +753,7 @@ function drawTheNetwork() {
         if (focusStyle === FocusStyle.SHOW_ALL || (focusStyle === FocusStyle.CLICK_NODE && focusNode === node)) {
             let biasRect = drawValue(
                 nodeGroup,
-                nodeId,
+                `${tabSuffix}` + nodeId,
                 -biasSize - 2,
                 nodeSize + 2 * biasSize,
                 node.bias.get(),
@@ -746,6 +763,7 @@ function drawTheNetwork() {
             if (focusStyle !== FocusStyle.CLICK_NODE || focusNode === node) {
                 biasRect.on('click', function () {
                     (D3.event as any).stopPropagation();
+                    tabType == TabType.DEFINE && runEditCard(node, D3.mouse(container.node()));
                 });
             }
         } else {
@@ -760,6 +778,7 @@ function drawTheNetwork() {
             if (focusStyle !== FocusStyle.CLICK_NODE || focusNode === node) {
                 biasRect.on('click', function () {
                     (D3.event as any).stopPropagation();
+                    tabType == TabType.DEFINE && runEditCard(node, D3.mouse(container.node()));
                 });
             }
         }
@@ -819,7 +838,7 @@ function drawTheNetwork() {
                     if (numNeurons >= 9) {
                         return;
                     }
-                    const id = selectDefaultId(true);
+                    const id = selectDefaultId(true, hiddenIdx + 1);
                     state.hiddenNeurons[hiddenIdx].push(id);
                     state.networkShape[hiddenIdx]++;
                     hideAllCards();
@@ -1056,9 +1075,6 @@ export function resetSelections(): void {
 }
 
 function runNameCard(node: Node, coordinates: [number, number]) {
-    // if (node.inputLinks.length !== 0 && node.outputs.length !== 0) {
-    //     return; // only input and output neurons can change their name
-    // }
     let nameCard = D3.select('#nn-nameCard');
     let finishedButton = D3.select('#nn-name-finished');
     let input = nameCard.select('input');
@@ -1219,10 +1235,10 @@ function updateUI(svgId: string) {
     }
 }
 
-function selectDefaultId(forHidden?: boolean): string {
+function selectDefaultId(forHidden?: boolean, layerIdx?: number): string {
     let i = 1;
     while (true) {
-        let id = forHidden ? 'h' + i++ : 'n' + i++;
+        let id = forHidden ? 'h' + (layerIdx != null ? layerIdx : i++) + 'n' + i++ : 'n' + i++;
         if (forHidden) {
             if (!state.hiddenNeurons.find((layer) => layer.find((neuron) => neuron === id))) {
                 return id;
