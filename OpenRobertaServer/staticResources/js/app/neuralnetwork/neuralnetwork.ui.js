@@ -998,7 +998,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         });
         var name = nodeOrLink instanceof neuralnetwork_nn_1.Link ? 'NN_WEIGHT' : 'NN_BIAS';
         editCard.select('.nn-type').text(MSG.get(name));
-        input.node().focus();
+        input.node().select();
     }
     function checkNeuronNameIsValid(oldName, newName) {
         var validIdRegexp = new RegExp('^[A-Za-z][A-Za-z0-9_]*$');
@@ -1064,12 +1064,13 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
     function runNameCard(node, coordinates) {
         var nameCard = D3.select('#nn-nameCard');
         var finishedButton = D3.select('#nn-name-finished');
+        var cancelButton = D3.select('#nn-name-cancel');
         var input = nameCard.select('input');
         input.property('value', node.id);
         var message = D3.select('#nn-name-message');
         message.style('color', '#333');
         message.text(MSG.get('NN_CHANGE_NEURONNAME'));
-        input.on('keypress', function () {
+        input.on('keydown', function () {
             var event = D3.event;
             if (event.which === 13) {
                 var userInput = input.property('value');
@@ -1083,6 +1084,9 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                     message.style('color', 'red');
                     message.text(MSG.get(check));
                 }
+            }
+            else if (event.which === 27) {
+                hideAllCards();
             }
         });
         finishedButton.on('click', function () {
@@ -1100,6 +1104,11 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                 message.text(MSG.get(check));
             }
         });
+        cancelButton.on('click', function () {
+            var event = D3.event;
+            event.preventDefault && event.preventDefault();
+            hideAllCards();
+        });
         var xPos = coordinates[0] + 20;
         var yPos = coordinates[1];
         if (xPos > widthOfWholeNNDiv - 320) {
@@ -1112,7 +1121,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         });
         var name = 'POPUP_NAME';
         nameCard.select('.nn-type').text(MSG.get(name));
-        input.node().focus();
+        input.node().select();
     }
     function runValueCard(node, coordinates) {
         if (node.inputLinks.length !== 0) {
@@ -1120,12 +1129,13 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         }
         var valueCard = D3.select('#nn-valueCard');
         var finishedButton = D3.select('#nn-value-finished');
+        var cancelButton = D3.select('#nn-value-cancel');
         var input = valueCard.select('input');
         var message = D3.select('#nn-value-message');
         message.style('color', '#333');
         message.text(MSG.get('NN_CHANGE_INPUT_NEURON_VALUE'));
         isInputSet = true;
-        input.on('keypress', function () {
+        input.on('keydown', function () {
             var event = D3.event;
             if (event.which === 13) {
                 var userInput = input.property('value');
@@ -1141,6 +1151,9 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                     message.style('color', 'red');
                     message.text(MSG.get('NN_INVALID_INPUT_NEURON_VALUE'));
                 }
+            }
+            else if (event.which === 27) {
+                hideAllCards();
             }
         });
         finishedButton.on('click', function () {
@@ -1160,6 +1173,11 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                 message.text(MSG.get('NN_INVALID_INPUT_NEURON_VALUE'));
             }
         });
+        cancelButton.on('click', function () {
+            var event = D3.event;
+            event.preventDefault && event.preventDefault();
+            hideAllCards();
+        });
         var xPos = coordinates[0] + 20;
         var yPos = coordinates[1];
         if (xPos > widthOfWholeNNDiv - 320) {
@@ -1171,7 +1189,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
             display: 'block',
         });
         valueCard.select('.nn-type').text(MSG.get('POPUP_VALUE'));
-        input.node().focus();
+        input.node().select();
     }
     function updateUI(svgId) {
         var container = D3.select(svgId).select('g.core');

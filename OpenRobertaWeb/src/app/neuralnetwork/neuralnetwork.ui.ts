@@ -1007,7 +1007,7 @@ function runEditCard(nodeOrLink: Node | Link, coordinates: [number, number]) {
     });
     let name = nodeOrLink instanceof Link ? 'NN_WEIGHT' : 'NN_BIAS';
     editCard.select('.nn-type').text(MSG.get(name));
-    (input.node() as HTMLInputElement).focus();
+    (input.node() as HTMLInputElement).select();
 }
 
 function checkNeuronNameIsValid(oldName: string, newName: string): string {
@@ -1077,6 +1077,7 @@ export function resetSelections(): void {
 function runNameCard(node: Node, coordinates: [number, number]) {
     let nameCard = D3.select('#nn-nameCard');
     let finishedButton = D3.select('#nn-name-finished');
+    let cancelButton = D3.select('#nn-name-cancel');
     let input = nameCard.select('input');
     input.property('value', node.id);
 
@@ -1084,7 +1085,7 @@ function runNameCard(node: Node, coordinates: [number, number]) {
     message.style('color', '#333');
     message.text(MSG.get('NN_CHANGE_NEURONNAME'));
 
-    input.on('keypress', () => {
+    input.on('keydown', () => {
         let event = D3.event as any;
         if (event.which === 13) {
             let userInput = input.property('value');
@@ -1097,6 +1098,8 @@ function runNameCard(node: Node, coordinates: [number, number]) {
                 message.style('color', 'red');
                 message.text(MSG.get(check));
             }
+        } else if (event.which === 27) {
+            hideAllCards();
         }
     });
     finishedButton.on('click', () => {
@@ -1113,6 +1116,11 @@ function runNameCard(node: Node, coordinates: [number, number]) {
             message.text(MSG.get(check));
         }
     });
+    cancelButton.on('click', () => {
+        let event = D3.event as any;
+        event.preventDefault && event.preventDefault();
+        hideAllCards();
+    });
     let xPos = coordinates[0] + 20;
     let yPos = coordinates[1];
     if (xPos > widthOfWholeNNDiv - 320) {
@@ -1125,7 +1133,7 @@ function runNameCard(node: Node, coordinates: [number, number]) {
     });
     let name = 'POPUP_NAME';
     nameCard.select('.nn-type').text(MSG.get(name));
-    (input.node() as HTMLInputElement).focus();
+    (input.node() as HTMLInputElement).select();
 }
 
 function runValueCard(node: Node, coordinates: [number, number]) {
@@ -1134,14 +1142,14 @@ function runValueCard(node: Node, coordinates: [number, number]) {
     }
     let valueCard = D3.select('#nn-valueCard');
     let finishedButton = D3.select('#nn-value-finished');
+    let cancelButton = D3.select('#nn-value-cancel');
     let input = valueCard.select('input');
-
     let message = D3.select('#nn-value-message');
     message.style('color', '#333');
     message.text(MSG.get('NN_CHANGE_INPUT_NEURON_VALUE'));
 
     isInputSet = true;
-    input.on('keypress', () => {
+    input.on('keydown', () => {
         let event = D3.event as any;
         if (event.which === 13) {
             let userInput = input.property('value');
@@ -1156,6 +1164,8 @@ function runValueCard(node: Node, coordinates: [number, number]) {
                 message.style('color', 'red');
                 message.text(MSG.get('NN_INVALID_INPUT_NEURON_VALUE'));
             }
+        } else if (event.which === 27) {
+            hideAllCards();
         }
     });
     finishedButton.on('click', () => {
@@ -1174,6 +1184,11 @@ function runValueCard(node: Node, coordinates: [number, number]) {
             message.text(MSG.get('NN_INVALID_INPUT_NEURON_VALUE'));
         }
     });
+    cancelButton.on('click', () => {
+        let event = D3.event as any;
+        event.preventDefault && event.preventDefault();
+        hideAllCards();
+    });
     let xPos = coordinates[0] + 20;
     let yPos = coordinates[1];
     if (xPos > widthOfWholeNNDiv - 320) {
@@ -1185,7 +1200,7 @@ function runValueCard(node: Node, coordinates: [number, number]) {
         display: 'block',
     });
     valueCard.select('.nn-type').text(MSG.get('POPUP_VALUE'));
-    (input.node() as HTMLInputElement).focus();
+    (input.node() as HTMLInputElement).select();
 }
 
 function updateUI(svgId: string) {
