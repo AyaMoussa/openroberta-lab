@@ -301,7 +301,7 @@ export class Network {
             network.push(currentLayer);
             let numNodes = shape[layerIdx];
             for (let i = 0; i < numNodes; i++) {
-                let nodeName = isInputLayer ? state.inputs[i] : isOutputLayer ? state.outputs[i] : 'h' + layerIdx + 'n' + (i + 1);
+                let nodeName = isInputLayer ? state.inputs[i] : isOutputLayer ? state.outputs[i] : state.hiddenNeurons[layerIdx - 1][i];
                 let node = new Node(nodeName, state.activation);
                 currentLayer.push(node);
                 if (layerIdx >= 1) {
@@ -351,8 +351,11 @@ export class Network {
     backProp(target: number, errorFunc: H.ErrorFunction): void {
         // The output node is a special case. We use the user-defined error
         // function for the derivative.
-        let outputNode = this.network[this.network.length - 1][0];
-        outputNode.outputDer = errorFunc.der(outputNode.output, target);
+        let outputLayer = this.network[this.network.length - 1];
+        for (let i = 0; i < outputLayer.length; i++) {
+            let outputNode = outputLayer[i];
+            outputNode.outputDer = errorFunc.der(outputNode.output, target);
+        }
 
         // Go through the layers backwards.
         for (let layerIdx = this.network.length - 1; layerIdx >= 1; layerIdx--) {
@@ -514,6 +517,20 @@ export class Network {
         return inputNames;
     }
 
+    getHiddenNeuronNames(): string[][] {
+        let hiddenNeuronNames: string[][] = [];
+        if (this.network != null && this.network.length > 2) {
+            for (let i = 1; i < this.network.length - 1; i++) {
+                let hiddenLayerNeurons: string[] = [];
+                for (let node of this.network[i]) {
+                    hiddenLayerNeurons.push(node.id);
+                }
+                hiddenNeuronNames.push(hiddenLayerNeurons);
+            }
+        }
+        return hiddenNeuronNames;
+    }
+
     getOutputNames(): string[] {
         let outputNames: string[] = [];
         if (this.network != null && this.network.length > 0) {
@@ -556,7 +573,7 @@ export class Network {
             return 0;
         }
     }
-    
+
     /**
      * finds a link and updates its weight. Called from the simulation
      * @param from id of the source of the link

@@ -293,7 +293,7 @@ define(["require", "exports", "./neuralnetwork.helper", "util"], function (requi
                 network.push(currentLayer);
                 var numNodes = shape[layerIdx];
                 for (var i = 0; i < numNodes; i++) {
-                    var nodeName = isInputLayer ? state.inputs[i] : isOutputLayer ? state.outputs[i] : 'h' + layerIdx + 'n' + (i + 1);
+                    var nodeName = isInputLayer ? state.inputs[i] : isOutputLayer ? state.outputs[i] : state.hiddenNeurons[layerIdx - 1][i];
                     var node = new Node(nodeName, state.activation);
                     currentLayer.push(node);
                     if (layerIdx >= 1) {
@@ -341,8 +341,11 @@ define(["require", "exports", "./neuralnetwork.helper", "util"], function (requi
         Network.prototype.backProp = function (target, errorFunc) {
             // The output node is a special case. We use the user-defined error
             // function for the derivative.
-            var outputNode = this.network[this.network.length - 1][0];
-            outputNode.outputDer = errorFunc.der(outputNode.output, target);
+            var outputLayer = this.network[this.network.length - 1];
+            for (var i = 0; i < outputLayer.length; i++) {
+                var outputNode = outputLayer[i];
+                outputNode.outputDer = errorFunc.der(outputNode.output, target);
+            }
             // Go through the layers backwards.
             for (var layerIdx = this.network.length - 1; layerIdx >= 1; layerIdx--) {
                 var currentLayer = this.network[layerIdx];
@@ -500,6 +503,20 @@ define(["require", "exports", "./neuralnetwork.helper", "util"], function (requi
                 }
             }
             return inputNames;
+        };
+        Network.prototype.getHiddenNeuronNames = function () {
+            var hiddenNeuronNames = [];
+            if (this.network != null && this.network.length > 2) {
+                for (var i = 1; i < this.network.length - 1; i++) {
+                    var hiddenLayerNeurons = [];
+                    for (var _i = 0, _a = this.network[i]; _i < _a.length; _i++) {
+                        var node = _a[_i];
+                        hiddenLayerNeurons.push(node.id);
+                    }
+                    hiddenNeuronNames.push(hiddenLayerNeurons);
+                }
+            }
+            return hiddenNeuronNames;
         };
         Network.prototype.getOutputNames = function () {
             var outputNames = [];

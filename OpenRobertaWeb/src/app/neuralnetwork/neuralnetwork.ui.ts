@@ -58,7 +58,9 @@ let outputNeuronNameEditingMode = false;
 let exploreType: ExploreType = null;
 let currentDebugLayer: number = 0;
 let [currentDebugNode, currentDebugNodeIndex]: [Node, number] = [null, 0];
-let flattenedNetworkWOInputs: Node[] = null;
+let flattenedNetwork: Node[] = null;
+let nodesExplored: Node[] = [];
+let layersExplored = [];
 let isInputSet: boolean = false;
 let tabType: TabType = null;
 
@@ -91,7 +93,7 @@ export async function runNNEditor(hasSim: boolean) {
             focusNode = null;
         }
         hideAllCards();
-        drawNetworkUI();
+        drawNetworkUIForTabDefine();
         $('#nn-explore-focus')
             .val(focusStyle == FocusStyle.CLICK_WEIGHT_BIAS ? 'SHOW_ALL' : (this as HTMLSelectElement).value)
             .change();
@@ -105,6 +107,11 @@ export async function runNNEditor(hasSim: boolean) {
             return;
         }
         state.networkShape[state.numHiddenLayers] = 2;
+        state.hiddenNeurons.push([]);
+        for (let i = 0; i < 2; i++) {
+            const id = selectDefaultId(true);
+            state.hiddenNeurons[state.numHiddenLayers].push(id);
+        }
         state.numHiddenLayers++;
         hideAllCards();
         reconstructNNIncludingUI();
@@ -123,13 +130,13 @@ export async function runNNEditor(hasSim: boolean) {
     let activationDropdown = D3.select('#nn-activations').on('change', function () {
         state.activationKey = this.value;
         state.activation = H.activations[this.value];
-        drawNetworkUI();
+        drawNetworkUIForTabDefine();
     });
     activationDropdown.property('value', getKeyFromValue(H.activations, state.activation));
 
     D3.select('#nn-show-precision').on('change', function () {
         state.precision = this.value;
-        drawNetworkUI();
+        drawNetworkUIForTabDefine();
     });
 
     D3.select('#nn-get-shape').on('change', updateShapeListener);
@@ -185,7 +192,7 @@ export async function runNNEditor(hasSim: boolean) {
     // Listen for css-responsive changes and redraw the svg network.
     window.addEventListener('resize', () => {
         hideAllCards();
-        drawNetworkUI();
+        drawNetworkUIForTabDefine();
     });
     hideAllCards();
     reconstructNNIncludingUI();
@@ -235,38 +242,44 @@ export async function runNNEditorForTabExplore(hasSim: boolean) {
         network.forwardProp();
         currentDebugLayer = 0;
         currentDebugNodeIndex = 0;
+        layersExplored = [];
+        nodesExplored = [];
         hideAllCards();
         drawNetworkUIForTabExplore();
     });
 
     D3.select('#nn-explore-run-layer').on('click', () => {
         exploreType = ExploreType.LAYER;
-        isInputSet = true;
+        isInputSet = false;
         const networkImpl = network.getLayerAndNodeArray();
-        if (currentDebugLayer < networkImpl.length - 1) {
-            currentDebugLayer++;
+        if (currentDebugLayer < networkImpl.length) {
+            layersExplored.push(...networkImpl[currentDebugLayer++]);
         } else {
-            currentDebugLayer = 1;
+            currentDebugLayer = networkImpl.length;
         }
         network.forwardProp();
         currentDebugNodeIndex = 0;
+        nodesExplored = [];
         hideAllCards();
         drawNetworkUIForTabExplore();
     });
 
     D3.select('#nn-explore-run-neuron').on('click', () => {
         exploreType = ExploreType.NEURON;
-        isInputSet = true;
-        if (flattenedNetworkWOInputs == null) {
+        isInputSet = false;
+        if (flattenedNetwork == null) {
             const networkImpl = network.getLayerAndNodeArray();
-            flattenedNetworkWOInputs = [].concat.apply([], networkImpl.slice(1));
+            flattenedNetwork = [].concat.apply([], networkImpl);
         }
-        currentDebugNode = flattenedNetworkWOInputs[currentDebugNodeIndex++];
-        if (currentDebugNodeIndex >= flattenedNetworkWOInputs.length) {
-            currentDebugNodeIndex = 0;
+        if (currentDebugNodeIndex < flattenedNetwork.length) {
+            currentDebugNode = flattenedNetwork[currentDebugNodeIndex++];
+            nodesExplored.push(currentDebugNode);
+        } else {
+            currentDebugNodeIndex = flattenedNetwork.length;
         }
-        currentDebugNode.updateOutput();
+        !state.inputs.includes(currentDebugNode.id) && currentDebugNode.updateOutput();
         currentDebugLayer = 0;
+        layersExplored = [];
         hideAllCards();
         drawNetworkUIForTabExplore();
     });
@@ -274,6 +287,7 @@ export async function runNNEditorForTabExplore(hasSim: boolean) {
     D3.select('#nn-explore-stop').on('click', () => {
         exploreType = ExploreType.STOP;
         isInputSet = false;
+        resetSelections();
         D3.select('#nn-show-next-neuron').html('');
         hideAllCards();
         drawNetworkUIForTabExplore();
@@ -386,7 +400,7 @@ export function resetUiOnTerminate() {
 
 export function reconstructNNIncludingUI() {
     makeNetworkFromState();
-    drawNetworkUI();
+    drawNetworkUIForTabDefine();
 }
 
 export function drawNetworkUIForTabExplore() {
@@ -409,7 +423,7 @@ export function drawNetworkUIForTabLearn() {
     drawTheNetwork();
 }
 
-function drawNetworkUI(): void {
+function drawNetworkUIForTabDefine(): void {
     $('#nn-activation-label').text(MSG.get('NN_ACTIVATION'));
     $('#nn-regularization-label').text(MSG.get('NN_REGULARIZATION'));
     $('#nn-focus-label').text(MSG.get('NN_FOCUS_OPTION'));
@@ -619,15 +633,17 @@ function drawTheNetwork() {
                 drawNodeOutput(container, nodeGroup, node);
             }
             if (exploreType == ExploreType.LAYER) {
-                if (network.getLayerAndNodeArray()[currentDebugLayer].includes(node)) {
+                if (layersExplored.includes(node)) {
                     drawNodeOutput(container, nodeGroup, node);
                 }
             }
             if (exploreType == ExploreType.NEURON) {
-                if (currentDebugNode.id == node.id) {
+                if (nodesExplored.includes(node)) {
                     drawNodeOutput(container, nodeGroup, node);
                 }
-                D3.select('#nn-show-next-neuron').html(flattenedNetworkWOInputs[currentDebugNodeIndex].id);
+                D3.select('#nn-show-next-neuron').html(
+                    currentDebugNode.id == flattenedNetwork[flattenedNetwork.length - 1].id ? '' : flattenedNetwork[currentDebugNodeIndex].id
+                );
             } else {
                 D3.select('#nn-show-next-neuron').html('');
             }
@@ -803,6 +819,8 @@ function drawTheNetwork() {
                     if (numNeurons >= 9) {
                         return;
                     }
+                    const id = selectDefaultId(true);
+                    state.hiddenNeurons[hiddenIdx].push(id);
                     state.networkShape[hiddenIdx]++;
                     hideAllCards();
                     reconstructNNIncludingUI();
@@ -973,7 +991,7 @@ function runEditCard(nodeOrLink: Node | Link, coordinates: [number, number]) {
     (input.node() as HTMLInputElement).focus();
 }
 
-function checkInputOutputNeuronNameValid(oldName: string, newName: string): string {
+function checkNeuronNameIsValid(oldName: string, newName: string): string {
     const validIdRegexp = new RegExp('^[A-Za-z][A-Za-z0-9_]*$');
     if (!validIdRegexp.test(newName)) {
         return 'NN_INVALID_NEURONNAME';
@@ -982,7 +1000,7 @@ function checkInputOutputNeuronNameValid(oldName: string, newName: string): stri
         return null;
     }
     let allNodes = network.network;
-    if (allNodes[0].find((v) => v.id === newName) || allNodes[allNodes.length - 1].find((v) => v.id === newName)) {
+    if (allNodes.find((layer) => layer.find((neuron) => neuron.id === newName))) {
         return 'NN_USED_NEURONNAME';
     }
     return null;
@@ -998,6 +1016,13 @@ function updateNodeName(node: Node, newId: string) {
     for (let i = 0; i < state.inputs.length; i++) {
         if (state.inputs[i] === node.id) {
             state.inputs[i] = newId;
+        }
+    }
+    for (let i = 0; i < state.hiddenNeurons.length; i++) {
+        for (let j = 0; j < state.hiddenNeurons[i].length; j++) {
+            if (state.hiddenNeurons[i][j] === node.id) {
+                state.hiddenNeurons[i][j] = newId;
+            }
         }
     }
     for (let i = 0; i < state.outputs.length; i++) {
@@ -1024,14 +1049,16 @@ export function resetSelections(): void {
     exploreType = null;
     currentDebugLayer = 0;
     [currentDebugNode, currentDebugNodeIndex] = [null, 0];
-    flattenedNetworkWOInputs = null;
+    flattenedNetwork = null;
+    nodesExplored = [];
+    layersExplored = [];
     isInputSet = false;
 }
 
 function runNameCard(node: Node, coordinates: [number, number]) {
-    if (node.inputLinks.length !== 0 && node.outputs.length !== 0) {
-        return; // only input and output neurons can change their name
-    }
+    // if (node.inputLinks.length !== 0 && node.outputs.length !== 0) {
+    //     return; // only input and output neurons can change their name
+    // }
     let nameCard = D3.select('#nn-nameCard');
     let finishedButton = D3.select('#nn-name-finished');
     let input = nameCard.select('input');
@@ -1045,11 +1072,11 @@ function runNameCard(node: Node, coordinates: [number, number]) {
         let event = D3.event as any;
         if (event.which === 13) {
             let userInput = input.property('value');
-            let check = checkInputOutputNeuronNameValid(node.id, userInput);
+            let check = checkNeuronNameIsValid(node.id, userInput);
             if (check === null) {
                 updateNodeName(node, userInput);
                 hideAllCards();
-                drawNetworkUI();
+                drawNetworkUIForTabDefine();
             } else {
                 message.style('color', 'red');
                 message.text(MSG.get(check));
@@ -1060,11 +1087,11 @@ function runNameCard(node: Node, coordinates: [number, number]) {
         let event = D3.event as any;
         event.preventDefault && event.preventDefault();
         let userInput = input.property('value');
-        let check = checkInputOutputNeuronNameValid(node.id, userInput);
-        if (checkInputOutputNeuronNameValid(node.id, userInput) === null) {
+        let check = checkNeuronNameIsValid(node.id, userInput);
+        if (check === null) {
             updateNodeName(node, userInput);
             hideAllCards();
-            drawNetworkUI();
+            drawNetworkUIForTabDefine();
         } else {
             message.style('color', 'red');
             message.text(MSG.get(check));
@@ -1095,7 +1122,7 @@ function runValueCard(node: Node, coordinates: [number, number]) {
 
     let message = D3.select('#nn-value-message');
     message.style('color', '#333');
-    message.text(MSG.get('type input value for neuron'));
+    message.text(MSG.get('NN_CHANGE_INPUT_NEURON_VALUE'));
 
     isInputSet = true;
     input.on('keypress', () => {
@@ -1105,13 +1132,13 @@ function runValueCard(node: Node, coordinates: [number, number]) {
             let check = checkUserInputIsNumber(userInput);
             if (check) {
                 network.setInputNeuronVal(node.id, Number(userInput));
-                exploreType = ExploreType.STOP;
-                currentDebugLayer = currentDebugNodeIndex = 0;
+                resetSelections();
+                isInputSet = true;
                 hideAllCards();
                 drawNetworkUIForTabExplore();
             } else {
                 message.style('color', 'red');
-                message.text(MSG.get('invalid input; please enter only numeric values'));
+                message.text(MSG.get('NN_INVALID_INPUT_NEURON_VALUE'));
             }
         }
     });
@@ -1122,13 +1149,13 @@ function runValueCard(node: Node, coordinates: [number, number]) {
         let check = checkUserInputIsNumber(userInput);
         if (check) {
             network.setInputNeuronVal(node.id, Number(userInput));
-            exploreType = ExploreType.STOP;
-            currentDebugLayer = currentDebugNodeIndex = 0;
+            resetSelections();
+            isInputSet = true;
             hideAllCards();
             drawNetworkUIForTabExplore();
         } else {
             message.style('color', 'red');
-            message.text(MSG.get('invalid input; please enter only numeric values'));
+            message.text(MSG.get('NN_INVALID_INPUT_NEURON_VALUE'));
         }
     });
     let xPos = coordinates[0] + 20;
@@ -1141,7 +1168,7 @@ function runValueCard(node: Node, coordinates: [number, number]) {
         top: `${yPos}px`,
         display: 'block',
     });
-    valueCard.select('.nn-type').text(MSG.get('value'));
+    valueCard.select('.nn-type').text(MSG.get('POPUP_VALUE'));
     (input.node() as HTMLInputElement).focus();
 }
 
@@ -1181,18 +1208,26 @@ function updateUI(svgId: string) {
         if (focusNode !== undefined && focusNode !== null) {
             D3.select('#nn-show-math').html(focusNode.id + ' = ' + focusNode.genMath(state.activationKey));
         } else if (exploreType == ExploreType.NEURON) {
-            D3.select('#nn-show-math').html(currentDebugNode.id + ' = ' + currentDebugNode.genMath(state.activationKey));
+            D3.select('#nn-show-math').html(
+                currentDebugNode.id +
+                    ' = ' +
+                    (state.inputs.includes(currentDebugNode.id) ? currentDebugNode.output : currentDebugNode.genMath(state.activationKey))
+            );
         } else {
             D3.select('#nn-show-math').html('');
         }
     }
 }
 
-function selectDefaultId(): string {
+function selectDefaultId(forHidden?: boolean): string {
     let i = 1;
     while (true) {
-        let id = 'n' + i++;
-        if (state.inputs.indexOf(id) <= -1 && state.outputs.indexOf(id) <= -1) {
+        let id = forHidden ? 'h' + i++ : 'n' + i++;
+        if (forHidden) {
+            if (!state.hiddenNeurons.find((layer) => layer.find((neuron) => neuron === id))) {
+                return id;
+            }
+        } else if (state.inputs.indexOf(id) <= -1 && state.outputs.indexOf(id) <= -1) {
             return id;
         }
     }
@@ -1292,6 +1327,7 @@ export function saveNN2Blockly(neuralNetwork?: Network): void {
         state.weights = networkToSave.getWeightArray();
         state.biases = networkToSave.getBiasArray();
         state.inputs = networkToSave.getInputNames();
+        state.hiddenNeurons = networkToSave.getHiddenNeuronNames();
         state.outputs = networkToSave.getOutputNames();
         startBlock.data = JSON.stringify(state);
     } catch (e) {
