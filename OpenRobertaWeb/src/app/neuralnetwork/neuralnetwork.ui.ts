@@ -1074,6 +1074,33 @@ export function resetSelections(): void {
     isInputSet = false;
 }
 
+function updateNameValueEventListener(
+    input: d3.Selection<any>,
+    inputValueEventListener: () => void,
+    finishedButton: d3.Selection<any>,
+    cancelButton: d3.Selection<any>
+) {
+    input.on('keydown', () => {
+        let event = D3.event as any;
+        if (event.which === 13) {
+            inputValueEventListener();
+        } else if (event.which === 27) {
+            hideAllCards();
+        }
+    });
+    finishedButton.on('click', () => {
+        let event = D3.event as any;
+        event.preventDefault && event.preventDefault();
+        inputValueEventListener();
+    });
+    cancelButton.on('click', () => {
+        let event = D3.event as any;
+        event.preventDefault && event.preventDefault();
+        isInputSet = false;
+        hideAllCards();
+    });
+}
+
 function runNameCard(node: Node, coordinates: [number, number]) {
     let nameCard = D3.select('#nn-nameCard');
     let finishedButton = D3.select('#nn-name-finished');
@@ -1085,26 +1112,7 @@ function runNameCard(node: Node, coordinates: [number, number]) {
     message.style('color', '#333');
     message.text(MSG.get('NN_CHANGE_NEURONNAME'));
 
-    input.on('keydown', () => {
-        let event = D3.event as any;
-        if (event.which === 13) {
-            let userInput = input.property('value');
-            let check = checkNeuronNameIsValid(node.id, userInput);
-            if (check === null) {
-                updateNodeName(node, userInput);
-                hideAllCards();
-                drawNetworkUIForTabDefine();
-            } else {
-                message.style('color', 'red');
-                message.text(MSG.get(check));
-            }
-        } else if (event.which === 27) {
-            hideAllCards();
-        }
-    });
-    finishedButton.on('click', () => {
-        let event = D3.event as any;
-        event.preventDefault && event.preventDefault();
+    function inputValueEventListener() {
         let userInput = input.property('value');
         let check = checkNeuronNameIsValid(node.id, userInput);
         if (check === null) {
@@ -1115,12 +1123,10 @@ function runNameCard(node: Node, coordinates: [number, number]) {
             message.style('color', 'red');
             message.text(MSG.get(check));
         }
-    });
-    cancelButton.on('click', () => {
-        let event = D3.event as any;
-        event.preventDefault && event.preventDefault();
-        hideAllCards();
-    });
+    }
+
+    updateNameValueEventListener(input, inputValueEventListener, finishedButton, cancelButton);
+
     let xPos = coordinates[0] + 20;
     let yPos = coordinates[1];
     if (xPos > widthOfWholeNNDiv - 320) {
@@ -1148,29 +1154,7 @@ function runValueCard(node: Node, coordinates: [number, number]) {
     message.style('color', '#333');
     message.text(MSG.get('NN_CHANGE_INPUT_NEURON_VALUE'));
 
-    isInputSet = true;
-    input.on('keydown', () => {
-        let event = D3.event as any;
-        if (event.which === 13) {
-            let userInput = input.property('value');
-            let check = checkUserInputIsNumber(userInput);
-            if (check) {
-                network.setInputNeuronVal(node.id, Number(userInput));
-                resetSelections();
-                isInputSet = true;
-                hideAllCards();
-                drawNetworkUIForTabExplore();
-            } else {
-                message.style('color', 'red');
-                message.text(MSG.get('NN_INVALID_INPUT_NEURON_VALUE'));
-            }
-        } else if (event.which === 27) {
-            hideAllCards();
-        }
-    });
-    finishedButton.on('click', () => {
-        let event = D3.event as any;
-        event.preventDefault && event.preventDefault();
+    function inputValueEventListener() {
         let userInput = input.property('value');
         let check = checkUserInputIsNumber(userInput);
         if (check) {
@@ -1183,12 +1167,10 @@ function runValueCard(node: Node, coordinates: [number, number]) {
             message.style('color', 'red');
             message.text(MSG.get('NN_INVALID_INPUT_NEURON_VALUE'));
         }
-    });
-    cancelButton.on('click', () => {
-        let event = D3.event as any;
-        event.preventDefault && event.preventDefault();
-        hideAllCards();
-    });
+    }
+
+    updateNameValueEventListener(input, inputValueEventListener, finishedButton, cancelButton);
+
     let xPos = coordinates[0] + 20;
     let yPos = coordinates[1];
     if (xPos > widthOfWholeNNDiv - 320) {
@@ -1237,7 +1219,9 @@ function updateUI(svgId: string) {
             }
         });
         if (focusNode !== undefined && focusNode !== null) {
-            D3.select('#nn-show-math').html(focusNode.id + ' = ' + focusNode.genMath(state.activationKey));
+            D3.select('#nn-show-math').html(
+                focusNode.id + ' = ' + (state.inputs.includes(focusNode.id) ? focusNode.output : focusNode.genMath(state.activationKey))
+            );
         } else if (exploreType == ExploreType.NEURON) {
             D3.select('#nn-show-math').html(
                 currentDebugNode.id +

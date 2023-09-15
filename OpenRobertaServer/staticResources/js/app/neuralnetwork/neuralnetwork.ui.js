@@ -1061,6 +1061,28 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         isInputSet = false;
     }
     exports.resetSelections = resetSelections;
+    function updateNameValueEventListener(input, inputValueEventListener, finishedButton, cancelButton) {
+        input.on('keydown', function () {
+            var event = D3.event;
+            if (event.which === 13) {
+                inputValueEventListener();
+            }
+            else if (event.which === 27) {
+                hideAllCards();
+            }
+        });
+        finishedButton.on('click', function () {
+            var event = D3.event;
+            event.preventDefault && event.preventDefault();
+            inputValueEventListener();
+        });
+        cancelButton.on('click', function () {
+            var event = D3.event;
+            event.preventDefault && event.preventDefault();
+            isInputSet = false;
+            hideAllCards();
+        });
+    }
     function runNameCard(node, coordinates) {
         var nameCard = D3.select('#nn-nameCard');
         var finishedButton = D3.select('#nn-name-finished');
@@ -1070,28 +1092,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         var message = D3.select('#nn-name-message');
         message.style('color', '#333');
         message.text(MSG.get('NN_CHANGE_NEURONNAME'));
-        input.on('keydown', function () {
-            var event = D3.event;
-            if (event.which === 13) {
-                var userInput = input.property('value');
-                var check = checkNeuronNameIsValid(node.id, userInput);
-                if (check === null) {
-                    updateNodeName(node, userInput);
-                    hideAllCards();
-                    drawNetworkUIForTabDefine();
-                }
-                else {
-                    message.style('color', 'red');
-                    message.text(MSG.get(check));
-                }
-            }
-            else if (event.which === 27) {
-                hideAllCards();
-            }
-        });
-        finishedButton.on('click', function () {
-            var event = D3.event;
-            event.preventDefault && event.preventDefault();
+        function inputValueEventListener() {
             var userInput = input.property('value');
             var check = checkNeuronNameIsValid(node.id, userInput);
             if (check === null) {
@@ -1103,12 +1104,8 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                 message.style('color', 'red');
                 message.text(MSG.get(check));
             }
-        });
-        cancelButton.on('click', function () {
-            var event = D3.event;
-            event.preventDefault && event.preventDefault();
-            hideAllCards();
-        });
+        }
+        updateNameValueEventListener(input, inputValueEventListener, finishedButton, cancelButton);
         var xPos = coordinates[0] + 20;
         var yPos = coordinates[1];
         if (xPos > widthOfWholeNNDiv - 320) {
@@ -1134,31 +1131,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         var message = D3.select('#nn-value-message');
         message.style('color', '#333');
         message.text(MSG.get('NN_CHANGE_INPUT_NEURON_VALUE'));
-        isInputSet = true;
-        input.on('keydown', function () {
-            var event = D3.event;
-            if (event.which === 13) {
-                var userInput = input.property('value');
-                var check = checkUserInputIsNumber(userInput);
-                if (check) {
-                    network.setInputNeuronVal(node.id, Number(userInput));
-                    resetSelections();
-                    isInputSet = true;
-                    hideAllCards();
-                    drawNetworkUIForTabExplore();
-                }
-                else {
-                    message.style('color', 'red');
-                    message.text(MSG.get('NN_INVALID_INPUT_NEURON_VALUE'));
-                }
-            }
-            else if (event.which === 27) {
-                hideAllCards();
-            }
-        });
-        finishedButton.on('click', function () {
-            var event = D3.event;
-            event.preventDefault && event.preventDefault();
+        function inputValueEventListener() {
             var userInput = input.property('value');
             var check = checkUserInputIsNumber(userInput);
             if (check) {
@@ -1172,12 +1145,8 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                 message.style('color', 'red');
                 message.text(MSG.get('NN_INVALID_INPUT_NEURON_VALUE'));
             }
-        });
-        cancelButton.on('click', function () {
-            var event = D3.event;
-            event.preventDefault && event.preventDefault();
-            hideAllCards();
-        });
+        }
+        updateNameValueEventListener(input, inputValueEventListener, finishedButton, cancelButton);
         var xPos = coordinates[0] + 20;
         var yPos = coordinates[1];
         if (xPos > widthOfWholeNNDiv - 320) {
@@ -1223,7 +1192,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                 }
             });
             if (focusNode !== undefined && focusNode !== null) {
-                D3.select('#nn-show-math').html(focusNode.id + ' = ' + focusNode.genMath(state.activationKey));
+                D3.select('#nn-show-math').html(focusNode.id + ' = ' + (state.inputs.includes(focusNode.id) ? focusNode.output : focusNode.genMath(state.activationKey)));
             }
             else if (exploreType == ExploreType.NEURON) {
                 D3.select('#nn-show-math').html(currentDebugNode.id +
