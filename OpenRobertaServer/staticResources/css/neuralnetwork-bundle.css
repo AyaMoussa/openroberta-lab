@@ -173,12 +173,12 @@ button.nn-btn {
     color: #ffffff;
 }
 
-button#nn-type-plus, button#nn-type-minus, button#nn-type-finished, button#nn-name-finished, button#nn-value-finished, button#nn-name-cancel, button#nn-value-cancel {
+button#nn-type-plus, button#nn-type-minus, button#nn-type-finished, button#nn-name-finished, button#nn-value-finished, button#nn-type-cancel, button#nn-name-cancel, button#nn-value-cancel {
     width: 27px;
     height: 27px;
 }
 
-button#nn-name-cancel, button#nn-value-cancel {
+button#nn-type-cancel, button#nn-name-cancel, button#nn-value-cancel {
     background-color: #CD5C5C;
 }
 

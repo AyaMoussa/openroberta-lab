@@ -125,6 +125,7 @@ define(["require", "exports", "./neuralnetwork.helper", "util"], function (requi
             this.bias = new NNumber();
             this.outputs = [];
             this.output = 0;
+            this.outputForUI = '0';
             /** Error derivative with respect to this node's output. */
             this.outputDer = 0;
             /** Error derivative with respect to this node's total input. */
@@ -532,6 +533,10 @@ define(["require", "exports", "./neuralnetwork.helper", "util"], function (requi
         Network.prototype.setInputNeuronVal = function (id, val) {
             var node = this.getNeuronById(id);
             node.output = val;
+        };
+        Network.prototype.setInputNeuronValForUI = function (id, val) {
+            var node = this.getNeuronById(id);
+            node.outputForUI = val;
         };
         Network.prototype.getOutputNeuronVal = function (id) {
             var node = this.getNeuronById(id);

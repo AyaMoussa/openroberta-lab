@@ -118,12 +118,13 @@ export class NNumber {
  * after every forward and back propagation run.
  */
 export class Node {
-    id: string; // may ONLY be changed, when names of input/output neurons are edited
+    id: string; // may ONLY be changed, when names of neurons are edited
     readonly inputLinks: Link[] = [];
     bias: NNumber = new NNumber();
     readonly outputs: Link[] = [];
     totalInput: number;
     output: number = 0;
+    outputForUI: string = '0';
     /** Error derivative with respect to this node's output. */
     outputDer = 0;
     /** Error derivative with respect to this node's total input. */
@@ -545,6 +546,11 @@ export class Network {
     setInputNeuronVal(id: String, val: number): void {
         let node = this.getNeuronById(id);
         node.output = val;
+    }
+
+    setInputNeuronValForUI(id: String, val: string): void {
+        let node = this.getNeuronById(id);
+        node.outputForUI = val;
     }
 
     getOutputNeuronVal(id: String): number {

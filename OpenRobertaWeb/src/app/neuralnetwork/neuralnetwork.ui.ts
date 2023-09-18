@@ -525,7 +525,7 @@ function drawTheNetwork() {
     let container: D3Selection = svg
         .append('g')
         .classed('core', true)
-        .attr('transform', tabType == TabType.DEFINE ? `translate(3,3)` : `translate(3,10)`);
+        .attr('transform', tabType == TabType.DEFINE ? `translate(3,3)` : `translate(3,15)`);
 
     // Draw the input layer separately.
     let numNodes = networkImpl[0].length;
@@ -644,19 +644,19 @@ function drawTheNetwork() {
         }
         if (tabType == TabType.EXPLORE) {
             if (isInputSet && nodeType == NodeType.INPUT) {
-                drawNodeOutput(container, nodeGroup, node);
+                drawNodeOutput(container, nodeGroup, node, NodeType.INPUT);
             }
             if (exploreType == ExploreType.RUN) {
-                drawNodeOutput(container, nodeGroup, node);
+                drawNodeOutput(container, nodeGroup, node, nodeType);
             }
             if (exploreType == ExploreType.LAYER) {
                 if (layersExplored.includes(node)) {
-                    drawNodeOutput(container, nodeGroup, node);
+                    drawNodeOutput(container, nodeGroup, node, nodeType);
                 }
             }
             if (exploreType == ExploreType.NEURON) {
                 if (nodesExplored.includes(node)) {
-                    drawNodeOutput(container, nodeGroup, node);
+                    drawNodeOutput(container, nodeGroup, node, nodeType);
                 }
                 D3.select('#nn-show-next-neuron').html(
                     currentDebugNode.id == flattenedNetwork[flattenedNetwork.length - 1].id ? '' : flattenedNetwork[currentDebugNodeIndex].id
@@ -719,7 +719,7 @@ function drawTheNetwork() {
             let pointForWeight = lineNode.getPointAtLength(lineNode.getTotalLength() * posVal);
             drawValue(
                 container,
-                `${tabSuffix}` + link.source.id + '-' + link.dest.id,
+                link.source.id + '-' + link.dest.id + `${tabSuffix}`,
                 pointForWeight.x,
                 pointForWeight.y - 10,
                 link.weight.get(),
@@ -753,7 +753,7 @@ function drawTheNetwork() {
         if (focusStyle === FocusStyle.SHOW_ALL || (focusStyle === FocusStyle.CLICK_NODE && focusNode === node)) {
             let biasRect = drawValue(
                 nodeGroup,
-                `${tabSuffix}` + nodeId,
+                nodeId + `${tabSuffix}`,
                 -biasSize - 2,
                 nodeSize + 2 * biasSize,
                 node.bias.get(),
@@ -784,8 +784,15 @@ function drawTheNetwork() {
         }
     }
 
-    function drawNodeOutput(container: D3Selection, nodeGroup: D3Selection, node: Node): void {
-        drawValue(nodeGroup, `out-${node.id}`, 7 * biasSize, nodeSize - 4.5 * biasSize, node.output, node.output.toString());
+    function drawNodeOutput(container: D3Selection, nodeGroup: D3Selection, node: Node, nodeType: NodeType): void {
+        let nodeOutputForUI: string = '';
+        if (nodeType == NodeType.INPUT) {
+            nodeOutputForUI =
+                node.outputForUI.endsWith(',') || node.outputForUI.endsWith('.') ? node.outputForUI.slice(0, node.outputForUI.length - 1) : node.outputForUI;
+        } else {
+            nodeOutputForUI = node.output.toString();
+        }
+        drawValue(nodeGroup, `out-${node.id}`, 7 * biasSize, nodeSize - 4.5 * biasSize, node.output, nodeOutputForUI);
     }
 
     function drawValue(container: D3Selection, id: string, x: number, y: number, valueForColor: number, valueToShow: string): D3Selection {
@@ -946,12 +953,14 @@ function runEditCard(nodeOrLink: Node | Link, coordinates: [number, number]) {
     let plusButton = D3.select('#nn-type-plus');
     let minusButton = D3.select('#nn-type-minus');
     let finishedButton = D3.select('#nn-type-finished');
+    let cancelButton = D3.select('#nn-type-cancel');
 
     let input = editCard.select('input');
     input.property('value', nodeOrLink2Value(nodeOrLink));
+    let oldValue = nodeOrLink2Value(nodeOrLink);
 
     input
-        .on('keypress', () => {
+        .on('keydown', () => {
             let event = D3.event as any;
             if (event.key === 'h' || event.key === 'i') {
                 event.target.value = H.updValue(event.target.value, 1);
@@ -965,6 +974,10 @@ function runEditCard(nodeOrLink: Node | Link, coordinates: [number, number]) {
                 hideAllCards();
                 event.preventDefault && event.preventDefault();
                 return false;
+            } else if (event.which === 27) {
+                hideAllCards();
+                event.preventDefault && event.preventDefault();
+                value2NodeOrLink(nodeOrLink, oldValue);
             }
             (input.node() as HTMLInputElement).focus();
         })
@@ -989,6 +1002,10 @@ function runEditCard(nodeOrLink: Node | Link, coordinates: [number, number]) {
     finishedButton.on('click', () => {
         hideAllCards();
         return false;
+    });
+    cancelButton.on('click', () => {
+        hideAllCards();
+        value2NodeOrLink(nodeOrLink, oldValue);
     });
     let xPos = coordinates[0] + 20;
     let yPos = coordinates[1];
@@ -1026,7 +1043,7 @@ function checkNeuronNameIsValid(oldName: string, newName: string): string {
 }
 
 function checkUserInputIsNumber(input: string): boolean {
-    const validInputRegexp = new RegExp('^-?\\d+$');
+    const validInputRegexp = new RegExp('^-?\\d*[.]?\\d*$');
     return validInputRegexp.test(input.trim());
 }
 
@@ -1150,15 +1167,18 @@ function runValueCard(node: Node, coordinates: [number, number]) {
     let finishedButton = D3.select('#nn-value-finished');
     let cancelButton = D3.select('#nn-value-cancel');
     let input = valueCard.select('input');
+    input.property('value', node.outputForUI);
+
     let message = D3.select('#nn-value-message');
     message.style('color', '#333');
     message.text(MSG.get('NN_CHANGE_INPUT_NEURON_VALUE'));
 
     function inputValueEventListener() {
         let userInput = input.property('value');
-        let check = checkUserInputIsNumber(userInput);
+        let check = checkUserInputIsNumber(userInput.replace(',', '.'));
         if (check) {
-            network.setInputNeuronVal(node.id, Number(userInput));
+            network.setInputNeuronVal(node.id, Number(userInput.replace(',', '.')));
+            network.setInputNeuronValForUI(node.id, userInput);
             resetSelections();
             isInputSet = true;
             hideAllCards();
@@ -1212,7 +1232,7 @@ function updateUI(svgId: string) {
         let colorScale = mkColorScaleBias();
         network.forEachNode(true, (node) => {
             D3.select(`#bias-${node.id}`).style('fill', colorScale(node.bias.get()));
-            let val = D3.select(`#val-${node.id}`);
+            let val = D3.select(svgId).select(`#val-${node.id}`);
             if (!val.empty()) {
                 val.text(node.bias.getWithPrecision(state.precision, state.weightSuppressMultOp));
                 drawValuesBox(val, node.bias.get());
