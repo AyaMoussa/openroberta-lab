@@ -173,13 +173,17 @@ button.nn-btn {
     color: #ffffff;
 }
 
-button#nn-type-plus, button#nn-type-minus, button#nn-type-finished, button#nn-name-finished, button#nn-value-finished, button#nn-type-cancel, button#nn-name-cancel, button#nn-value-cancel {
+button#nn-type-plus, button#nn-type-minus, button#nn-value-plus, button#nn-value-minus, button#nn-type-finished, button#nn-name-finished, button#nn-value-finished, button#nn-type-cancel, button#nn-name-cancel, button#nn-value-cancel {
     width: 27px;
     height: 27px;
 }
 
 button#nn-type-cancel, button#nn-name-cancel, button#nn-value-cancel {
     background-color: #CD5C5C;
+}
+
+button#nn-type-cancel:hover, button#nn-name-cancel:hover, button#nn-value-cancel:hover {
+    background-color: #E8C0C0;
 }
 
 #nn-features .nn-plus-minus-neuron-button.active-input {
@@ -219,7 +223,7 @@ button.nn-btn:hover {
     display: block;
     font-size: 16px;
     font-weight: bold;
-    text-anchor: end;
+    text-anchor: start;
     cursor: pointer;
 }
 

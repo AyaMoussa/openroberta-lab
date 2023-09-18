@@ -303,7 +303,6 @@ export async function runNNEditorForTabExplore(hasSim: boolean) {
 
     D3.select('#nn-explore-stop').on('click', () => {
         exploreType = ExploreType.STOP;
-        isInputSet = false;
         resetSelections();
         D3.select('#nn-show-next-neuron').html('');
         hideAllCards();
@@ -582,7 +581,7 @@ function drawTheNetwork() {
     let height = getRelativeHeight(D3.select(`#nn${tabSuffix}-network`));
     D3.select(`.nn${tabSuffix}-features`).style('height', height + 'px');
 
-    updateUI(`#nn${tabSuffix}-svg`);
+    updateUI(tabSuffix);
     return;
 
     function drawNode(node: Node, nodeType: NodeType, cx: number, cy: number, container: D3Selection) {
@@ -792,10 +791,18 @@ function drawTheNetwork() {
         } else {
             nodeOutputForUI = node.output.toString();
         }
-        drawValue(nodeGroup, `out-${node.id}`, 7 * biasSize, nodeSize - 4.5 * biasSize, node.output, nodeOutputForUI);
+        drawValue(nodeGroup, `out-${node.id}`, 4.5 * biasSize, nodeSize - 4.5 * biasSize, node.output, nodeOutputForUI, true);
     }
 
-    function drawValue(container: D3Selection, id: string, x: number, y: number, valueForColor: number, valueToShow: string): D3Selection {
+    function drawValue(
+        container: D3Selection,
+        id: string,
+        x: number,
+        y: number,
+        valueForColor: number,
+        valueToShow: string,
+        forNodeOutput: boolean = false
+    ): D3Selection {
         container.append('rect').attr('id', 'rect-val-' + id);
         const text = container
             .append('text')
@@ -806,9 +813,10 @@ function drawTheNetwork() {
                 y: y,
             })
             .text(valueToShow);
-        drawValuesBox(text, valueForColor);
+        drawValuesBox(text, valueForColor, forNodeOutput);
         return text;
     }
+
     function addPlusMinusControl(x: number, layerIdx: number) {
         if (tabType == TabType.DEFINE) {
             let div = D3.select('#nn-network').append('div').classed('nn-plus-minus-neurons', true).style('left', `${x}px`);
@@ -959,6 +967,7 @@ function runEditCard(nodeOrLink: Node | Link, coordinates: [number, number]) {
     input.property('value', nodeOrLink2Value(nodeOrLink));
     let oldValue = nodeOrLink2Value(nodeOrLink);
 
+    hideAllCards();
     input
         .on('keydown', () => {
             let event = D3.event as any;
@@ -1091,12 +1100,31 @@ export function resetSelections(): void {
     isInputSet = false;
 }
 
-function updateNameValueEventListener(
-    input: d3.Selection<any>,
-    inputValueEventListener: () => void,
-    finishedButton: d3.Selection<any>,
-    cancelButton: d3.Selection<any>
-) {
+function runNameCard(node: Node, coordinates: [number, number]) {
+    let nameCard = D3.select('#nn-nameCard');
+    let finishedButton = D3.select('#nn-name-finished');
+    let cancelButton = D3.select('#nn-name-cancel');
+    let input = nameCard.select('input');
+    input.property('value', node.id);
+
+    let message = D3.select('#nn-name-message');
+    message.style('color', '#333');
+    message.text(MSG.get('NN_CHANGE_NEURONNAME'));
+
+    hideAllCards();
+    function inputValueEventListener() {
+        let userInput = input.property('value');
+        let check = checkNeuronNameIsValid(node.id, userInput);
+        if (check === null) {
+            updateNodeName(node, userInput);
+            hideAllCards();
+            drawNetworkUIForTabDefine();
+        } else {
+            message.style('color', 'red');
+            message.text(MSG.get(check));
+        }
+    }
+
     input.on('keydown', () => {
         let event = D3.event as any;
         if (event.which === 13) {
@@ -1113,36 +1141,8 @@ function updateNameValueEventListener(
     cancelButton.on('click', () => {
         let event = D3.event as any;
         event.preventDefault && event.preventDefault();
-        isInputSet = false;
         hideAllCards();
     });
-}
-
-function runNameCard(node: Node, coordinates: [number, number]) {
-    let nameCard = D3.select('#nn-nameCard');
-    let finishedButton = D3.select('#nn-name-finished');
-    let cancelButton = D3.select('#nn-name-cancel');
-    let input = nameCard.select('input');
-    input.property('value', node.id);
-
-    let message = D3.select('#nn-name-message');
-    message.style('color', '#333');
-    message.text(MSG.get('NN_CHANGE_NEURONNAME'));
-
-    function inputValueEventListener() {
-        let userInput = input.property('value');
-        let check = checkNeuronNameIsValid(node.id, userInput);
-        if (check === null) {
-            updateNodeName(node, userInput);
-            hideAllCards();
-            drawNetworkUIForTabDefine();
-        } else {
-            message.style('color', 'red');
-            message.text(MSG.get(check));
-        }
-    }
-
-    updateNameValueEventListener(input, inputValueEventListener, finishedButton, cancelButton);
 
     let xPos = coordinates[0] + 20;
     let yPos = coordinates[1];
@@ -1164,6 +1164,8 @@ function runValueCard(node: Node, coordinates: [number, number]) {
         return; // only input neurons can take input values for forward prop step
     }
     let valueCard = D3.select('#nn-valueCard');
+    let plusButton = D3.select('#nn-value-plus');
+    let minusButton = D3.select('#nn-value-minus');
     let finishedButton = D3.select('#nn-value-finished');
     let cancelButton = D3.select('#nn-value-cancel');
     let input = valueCard.select('input');
@@ -1189,7 +1191,42 @@ function runValueCard(node: Node, coordinates: [number, number]) {
         }
     }
 
-    updateNameValueEventListener(input, inputValueEventListener, finishedButton, cancelButton);
+    input.on('keydown', () => {
+        let event = D3.event as any;
+        if (event.key === 'h' || event.key === 'i') {
+            event.target.value = H.updValue(event.target.value, 1);
+            event.preventDefault && event.preventDefault();
+        } else if (event.key === 'r' || event.key === 'd') {
+            event.target.value = H.updValue(event.target.value, -1);
+            event.preventDefault && event.preventDefault();
+        } else if (event.which === 13) {
+            inputValueEventListener();
+        } else if (event.which === 27) {
+            hideAllCards();
+        }
+    });
+    plusButton.on('click', () => {
+        let oldV = input.property('value');
+        let newV = H.updValue(oldV, 1);
+        input.property('value', newV);
+        return;
+    });
+    minusButton.on('click', () => {
+        let oldV = input.property('value');
+        let newV = H.updValue(oldV, -1);
+        input.property('value', newV);
+        return;
+    });
+    finishedButton.on('click', () => {
+        let event = D3.event as any;
+        event.preventDefault && event.preventDefault();
+        inputValueEventListener();
+    });
+    cancelButton.on('click', () => {
+        let event = D3.event as any;
+        event.preventDefault && event.preventDefault();
+        hideAllCards();
+    });
 
     let xPos = coordinates[0] + 20;
     let yPos = coordinates[1];
@@ -1205,7 +1242,8 @@ function runValueCard(node: Node, coordinates: [number, number]) {
     (input.node() as HTMLInputElement).select();
 }
 
-function updateUI(svgId: string) {
+function updateUI(tabSuffix: string) {
+    const svgId = `#nn${tabSuffix}-svg`;
     const container = D3.select(svgId).select('g.core');
     updateLinksUI(container);
     updateNodesUI();
@@ -1230,9 +1268,10 @@ function updateUI(svgId: string) {
 
     function updateNodesUI() {
         let colorScale = mkColorScaleBias();
+
         network.forEachNode(true, (node) => {
             D3.select(`#bias-${node.id}`).style('fill', colorScale(node.bias.get()));
-            let val = D3.select(svgId).select(`#val-${node.id}`);
+            let val = D3.select(svgId).select(`#val-${node.id}${tabSuffix}`);
             if (!val.empty()) {
                 val.text(node.bias.getWithPrecision(state.precision, state.weightSuppressMultOp));
                 drawValuesBox(val, node.bias.get());
@@ -1300,14 +1339,19 @@ function mkColorScaleBias(): _D3.scale.Linear<string, number> {
     return D3.scale.linear<string, number>().domain([-1, 0, 1]).range(['#f59322', '#eeeeee', '#0877bd']).clamp(true);
 }
 
-function drawValuesBox(text: D3Selection, valueForColor: number): void {
+function drawValuesBox(text: D3Selection, valueForColor: number, forNodeOutput?: boolean): void {
     const rect = D3.select('#rect-' + text.attr('id'));
     const bbox = (text.node() as any).getBBox();
     rect.attr('x', bbox.x - 4);
     rect.attr('y', bbox.y);
     rect.attr('width', bbox.width + 8);
     rect.attr('height', bbox.height);
-    rect.style('fill', val2color(valueForColor));
+    if (forNodeOutput) {
+        rect.style('fill', 'white');
+        rect.attr({ ry: '10%', stroke: val2color(valueForColor), 'stroke-width': 4, 'stroke-opacity': 1 });
+    } else {
+        rect.style('fill', val2color(valueForColor));
+    }
 
     function val2color(val: number): string {
         return val < 0 ? '#f5932260' : val == 0 ? '#e8eaeb60' : '#0877bd60';
@@ -1337,7 +1381,7 @@ function value2NodeOrLink(nodeOrLink: Node | Link, value: string) {
         }
         state.weights = network.getWeightArray();
         state.biases = network.getBiasArray();
-        updateUI('#nn-svg');
+        updateUI('');
     }
 }
 

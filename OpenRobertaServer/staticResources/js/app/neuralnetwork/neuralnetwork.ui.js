@@ -340,7 +340,6 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                         });
                         D3.select('#nn-explore-stop').on('click', function () {
                             exploreType = ExploreType.STOP;
-                            isInputSet = false;
                             resetSelections();
                             D3.select('#nn-show-next-neuron').html('');
                             hideAllCards();
@@ -598,7 +597,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         // Adjust the height of the features column.
         var height = getRelativeHeight(D3.select("#nn".concat(tabSuffix, "-network")));
         D3.select(".nn".concat(tabSuffix, "-features")).style('height', height + 'px');
-        updateUI("#nn".concat(tabSuffix, "-svg"));
+        updateUI(tabSuffix);
         return;
         function drawNode(node, nodeType, cx, cy, container) {
             if (node.id === '') {
@@ -780,9 +779,10 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
             else {
                 nodeOutputForUI = node.output.toString();
             }
-            drawValue(nodeGroup, "out-".concat(node.id), 7 * biasSize, nodeSize - 4.5 * biasSize, node.output, nodeOutputForUI);
+            drawValue(nodeGroup, "out-".concat(node.id), 4.5 * biasSize, nodeSize - 4.5 * biasSize, node.output, nodeOutputForUI, true);
         }
-        function drawValue(container, id, x, y, valueForColor, valueToShow) {
+        function drawValue(container, id, x, y, valueForColor, valueToShow, forNodeOutput) {
+            if (forNodeOutput === void 0) { forNodeOutput = false; }
             container.append('rect').attr('id', 'rect-val-' + id);
             var text = container
                 .append('text')
@@ -793,7 +793,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                 y: y,
             })
                 .text(valueToShow);
-            drawValuesBox(text, valueForColor);
+            drawValuesBox(text, valueForColor, forNodeOutput);
             return text;
         }
         function addPlusMinusControl(x, layerIdx) {
@@ -949,6 +949,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         var input = editCard.select('input');
         input.property('value', nodeOrLink2Value(nodeOrLink));
         var oldValue = nodeOrLink2Value(nodeOrLink);
+        hideAllCards();
         input
             .on('keydown', function () {
             var event = D3.event;
@@ -1080,7 +1081,29 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         isInputSet = false;
     }
     exports.resetSelections = resetSelections;
-    function updateNameValueEventListener(input, inputValueEventListener, finishedButton, cancelButton) {
+    function runNameCard(node, coordinates) {
+        var nameCard = D3.select('#nn-nameCard');
+        var finishedButton = D3.select('#nn-name-finished');
+        var cancelButton = D3.select('#nn-name-cancel');
+        var input = nameCard.select('input');
+        input.property('value', node.id);
+        var message = D3.select('#nn-name-message');
+        message.style('color', '#333');
+        message.text(MSG.get('NN_CHANGE_NEURONNAME'));
+        hideAllCards();
+        function inputValueEventListener() {
+            var userInput = input.property('value');
+            var check = checkNeuronNameIsValid(node.id, userInput);
+            if (check === null) {
+                updateNodeName(node, userInput);
+                hideAllCards();
+                drawNetworkUIForTabDefine();
+            }
+            else {
+                message.style('color', 'red');
+                message.text(MSG.get(check));
+            }
+        }
         input.on('keydown', function () {
             var event = D3.event;
             if (event.which === 13) {
@@ -1098,33 +1121,8 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         cancelButton.on('click', function () {
             var event = D3.event;
             event.preventDefault && event.preventDefault();
-            isInputSet = false;
             hideAllCards();
         });
-    }
-    function runNameCard(node, coordinates) {
-        var nameCard = D3.select('#nn-nameCard');
-        var finishedButton = D3.select('#nn-name-finished');
-        var cancelButton = D3.select('#nn-name-cancel');
-        var input = nameCard.select('input');
-        input.property('value', node.id);
-        var message = D3.select('#nn-name-message');
-        message.style('color', '#333');
-        message.text(MSG.get('NN_CHANGE_NEURONNAME'));
-        function inputValueEventListener() {
-            var userInput = input.property('value');
-            var check = checkNeuronNameIsValid(node.id, userInput);
-            if (check === null) {
-                updateNodeName(node, userInput);
-                hideAllCards();
-                drawNetworkUIForTabDefine();
-            }
-            else {
-                message.style('color', 'red');
-                message.text(MSG.get(check));
-            }
-        }
-        updateNameValueEventListener(input, inputValueEventListener, finishedButton, cancelButton);
         var xPos = coordinates[0] + 20;
         var yPos = coordinates[1];
         if (xPos > widthOfWholeNNDiv - 320) {
@@ -1144,6 +1142,8 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
             return; // only input neurons can take input values for forward prop step
         }
         var valueCard = D3.select('#nn-valueCard');
+        var plusButton = D3.select('#nn-value-plus');
+        var minusButton = D3.select('#nn-value-minus');
         var finishedButton = D3.select('#nn-value-finished');
         var cancelButton = D3.select('#nn-value-cancel');
         var input = valueCard.select('input');
@@ -1167,7 +1167,45 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                 message.text(MSG.get('NN_INVALID_INPUT_NEURON_VALUE'));
             }
         }
-        updateNameValueEventListener(input, inputValueEventListener, finishedButton, cancelButton);
+        input.on('keydown', function () {
+            var event = D3.event;
+            if (event.key === 'h' || event.key === 'i') {
+                event.target.value = H.updValue(event.target.value, 1);
+                event.preventDefault && event.preventDefault();
+            }
+            else if (event.key === 'r' || event.key === 'd') {
+                event.target.value = H.updValue(event.target.value, -1);
+                event.preventDefault && event.preventDefault();
+            }
+            else if (event.which === 13) {
+                inputValueEventListener();
+            }
+            else if (event.which === 27) {
+                hideAllCards();
+            }
+        });
+        plusButton.on('click', function () {
+            var oldV = input.property('value');
+            var newV = H.updValue(oldV, 1);
+            input.property('value', newV);
+            return;
+        });
+        minusButton.on('click', function () {
+            var oldV = input.property('value');
+            var newV = H.updValue(oldV, -1);
+            input.property('value', newV);
+            return;
+        });
+        finishedButton.on('click', function () {
+            var event = D3.event;
+            event.preventDefault && event.preventDefault();
+            inputValueEventListener();
+        });
+        cancelButton.on('click', function () {
+            var event = D3.event;
+            event.preventDefault && event.preventDefault();
+            hideAllCards();
+        });
         var xPos = coordinates[0] + 20;
         var yPos = coordinates[1];
         if (xPos > widthOfWholeNNDiv - 320) {
@@ -1181,7 +1219,8 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         valueCard.select('.nn-type').text(MSG.get('POPUP_VALUE'));
         input.node().select();
     }
-    function updateUI(svgId) {
+    function updateUI(tabSuffix) {
+        var svgId = "#nn".concat(tabSuffix, "-svg");
         var container = D3.select(svgId).select('g.core');
         updateLinksUI(container);
         updateNodesUI();
@@ -1206,7 +1245,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
             var colorScale = mkColorScaleBias();
             network.forEachNode(true, function (node) {
                 D3.select("#bias-".concat(node.id)).style('fill', colorScale(node.bias.get()));
-                var val = D3.select(svgId).select("#val-".concat(node.id));
+                var val = D3.select(svgId).select("#val-".concat(node.id).concat(tabSuffix));
                 if (!val.empty()) {
                     val.text(node.bias.getWithPrecision(state.precision, state.weightSuppressMultOp));
                     drawValuesBox(val, node.bias.get());
@@ -1273,14 +1312,20 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
     function mkColorScaleBias() {
         return D3.scale.linear().domain([-1, 0, 1]).range(['#f59322', '#eeeeee', '#0877bd']).clamp(true);
     }
-    function drawValuesBox(text, valueForColor) {
+    function drawValuesBox(text, valueForColor, forNodeOutput) {
         var rect = D3.select('#rect-' + text.attr('id'));
         var bbox = text.node().getBBox();
         rect.attr('x', bbox.x - 4);
         rect.attr('y', bbox.y);
         rect.attr('width', bbox.width + 8);
         rect.attr('height', bbox.height);
-        rect.style('fill', val2color(valueForColor));
+        if (forNodeOutput) {
+            rect.style('fill', 'white');
+            rect.attr({ ry: '10%', stroke: val2color(valueForColor), 'stroke-width': 4, 'stroke-opacity': 1 });
+        }
+        else {
+            rect.style('fill', val2color(valueForColor));
+        }
         function val2color(val) {
             return val < 0 ? '#f5932260' : val == 0 ? '#e8eaeb60' : '#0877bd60';
         }
@@ -1308,7 +1353,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
             }
             state.weights = network.getWeightArray();
             state.biases = network.getBiasArray();
-            updateUI('#nn-svg');
+            updateUI('');
         }
     }
     /**
