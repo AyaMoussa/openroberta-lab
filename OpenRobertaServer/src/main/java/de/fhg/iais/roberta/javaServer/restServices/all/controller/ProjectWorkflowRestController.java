@@ -137,9 +137,9 @@ public class ProjectWorkflowRestController {
             response.setCmd("runPBack");
             response.setConfAnnos(project.getConfAnnotationList());
             response.setConfiguration(project.getConfigurationJSON());
+            response.setBinaryURL(project.getBinaryURL());
             // TODO auto connection robots return COMPILERWORKFLOW_SUCCESS or COMPILERWORKFLOW_PROGRAM_GENERATION_SUCCESS
             // TODO which is not mapped to anything in the frontend, ROBOT_PUSH_RUN is mapped to the message that was used before workflows
-            response.setBinaryURL(project.getBinaryURL());
             if ( project.getResult() == Key.COMPILERWORKFLOW_SUCCESS || project.getResult() == Key.COMPILERWORKFLOW_PROGRAM_GENERATION_SUCCESS ) {
                 project.setResult(Key.ROBOT_PUSH_RUN);
             }
@@ -266,7 +266,7 @@ public class ProjectWorkflowRestController {
             Project project = request2project(wfRequest, dbSession, httpSessionState, this.robotCommunicator, false, false);
             ProjectService.executeWorkflow("runnative", project);
             response.setCmd("runNative");
-            response.setCompiledCode(project.getCompiledHex());
+            response.setBinaryURL(project.getBinaryURL());
             addProjectResultToResponse(response, project);
             Statistics.info("ProgramRunNative", "LoggedIn", httpSessionState.isUserLoggedIn(), "success", project.hasSucceeded());
             return UtilForREST.responseWithFrontendInfo(response, httpSessionState, this.robotCommunicator);
@@ -293,7 +293,7 @@ public class ProjectWorkflowRestController {
             Project project = request2project(wfRequest, dbSession, httpSessionState, this.robotCommunicator, false, false);
             ProjectService.executeWorkflow("compilenative", project);
             response.setCmd("runNative");
-            response.setCompiledCode(project.getCompiledHex());
+            response.setBinaryURL(project.getBinaryURL());
             addProjectResultToResponse(response, project);
             Statistics.info("ProgramCompileNative", "LoggedIn", httpSessionState.isUserLoggedIn(), "success", project.hasSucceeded());
             return UtilForREST.responseWithFrontendInfo(response, httpSessionState, this.robotCommunicator);
@@ -328,6 +328,11 @@ public class ProjectWorkflowRestController {
             response.setCmd("reset");
             response.setProgramName(project.getProgramName());
             response.setCompiledCode(project.getCompiledHex());
+            try {
+                response.setBinaryURL(project.getBinaryURL());
+            }catch(DbcException e){
+                response.setBinaryURL("");
+            }
             addProjectResultToResponse(response, project);
             Statistics.info("ProgramReset", "LoggedIn", httpSessionState.isUserLoggedIn(), "success", project.hasSucceeded());
             return UtilForREST.responseWithFrontendInfo(response, httpSessionState, this.robotCommunicator);
