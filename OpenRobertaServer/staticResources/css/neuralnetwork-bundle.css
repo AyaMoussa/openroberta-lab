@@ -161,6 +161,14 @@
     height: 44px;
 }
 
+#nn-explore-features .nn-plus-minus-neurons {
+    position: absolute;
+    line-height: 28px;
+    top: -10px;
+    width: 120px;
+    height: 44px;
+}
+
 button.nn-btn {
     background-color: #23b6ac;
     width: 36px;
@@ -190,6 +198,10 @@ button#nn-type-cancel:hover, button#nn-name-cancel:hover, button#nn-value-cancel
     background-color: #BACC1E;
 }
 
+#nn-explore-features .nn-input-value-button.active-input {
+    background-color: #BACC1E;
+}
+
 #nn-features .nn-plus-minus-neuron-button.active-output {
     background-color: #f29400;
 }
@@ -207,6 +219,10 @@ button.nn-btn:hover {
 #nn-top-controls .nn-num-layers-group {
     font-weight: bold;
     margin-bottom: 4px;
+}
+
+#nn-features .nn-plus-minus-neurons .nn-plus-minus-neuron-button {
+    margin-right: 4px;
 }
 
 #nn-features .nn-plus-minus-neurons .nn-plus-minus-neuron-button {

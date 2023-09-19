@@ -94,6 +94,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
     var layersExplored = [];
     var isInputSet = false;
     var tabType = null;
+    var inputNeuronValueEnteringMode = false;
     function setupNN(stateFromStartBlock) {
         rememberProgramWasReplaced = false;
         state = new neuralnetwork_uistate_1.State(stateFromStartBlock);
@@ -513,7 +514,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         D3.select("#nn".concat(tabSuffix, "-main-part")).selectAll('div.nn-plus-minus-neurons').remove();
         var nnD3 = D3.select("#nn".concat(tabSuffix))[0][0];
         var topControlD3 = D3.select("#nn".concat(tabSuffix, "-top-controls"))[0][0];
-        var mainPartHeight = nnD3.clientHeight - topControlD3.clientHeight + (tabType == TabType.DEFINE ? -50 : 50);
+        var mainPartHeight = nnD3.clientHeight - topControlD3.clientHeight + (tabType == TabType.DEFINE ? -50 : -75);
         // set the width of the svg container.
         var mainPart = D3.select("#nn".concat(tabSuffix, "-main-part"))[0][0];
         mainPart.setAttribute('style', 'height:' + mainPartHeight + 'px');
@@ -544,7 +545,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         var container = svg
             .append('g')
             .classed('core', true)
-            .attr('transform', tabType == TabType.DEFINE ? "translate(3,3)" : "translate(3,15)");
+            .attr('transform', tabType == TabType.DEFINE ? "translate(3,3)" : "translate(3,50)");
         // Draw the input layer separately.
         var numNodes = networkImpl[0].length;
         var cxI = layerStartX(0);
@@ -622,11 +623,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                 mainRectAngle.attr('style', 'outline: medium solid #fbdc00;');
             }
             var theWholeNNSvgNode = D3.select("#nn".concat(tabSuffix, "-svg")).node();
-            nodeGroup
-                .on('dblclick', function () {
-                tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
-            })
-                .on('click', function () {
+            nodeGroup.on('click', function () {
                 if (D3.event.shiftKey) {
                     tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
                 }
@@ -634,6 +631,9 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                     tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
                 }
                 else if (outputNeuronNameEditingMode && node.outputs.length === 0) {
+                    tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
+                }
+                else if (inputNeuronValueEnteringMode && node.inputLinks.length === 0) {
                     tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
                 }
                 else {
@@ -935,6 +935,37 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                     }
                     else {
                         button.classed('active-output', false);
+                    }
+                }
+            }
+            else if (tabType == TabType.EXPLORE) {
+                if (layerIdx == 0) {
+                    var div = D3.select('#nn-explore-network')
+                        .append('div')
+                        .classed('nn-plus-minus-neurons', true)
+                        .style('left', "".concat(x + 20, "px"));
+                    var firstRow = div.append('div');
+                    var button = firstRow.append('button');
+                    button
+                        .attr('class', 'nn-btn nn-input-value-button')
+                        .on('click', function () {
+                        inputNeuronValueEnteringMode = !inputNeuronValueEnteringMode;
+                        if (inputNeuronValueEnteringMode) {
+                            D3.event['target'].parentElement.classList.add('active-input');
+                            D3.event['target'].classList.add('active-input');
+                        }
+                        else {
+                            D3.event['target'].parentElement.classList.remove('active-input');
+                            D3.event['target'].classList.remove('active-input');
+                        }
+                    })
+                        .append('span')
+                        .attr('class', 'typcn typcn-edit');
+                    if (inputNeuronValueEnteringMode) {
+                        button.classed('active-input', true);
+                    }
+                    else {
+                        button.classed('active-input', false);
                     }
                 }
             }
