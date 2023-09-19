@@ -261,7 +261,7 @@ function setRobot(robot, result, opt_init) {
     GUISTATE.gui.multipleSim = result.multipleSim;
     GUISTATE.gui.markerSim = result.markerSim;
     GUISTATE.gui.nn = result.nn;
-    GUISTATE.gui.nnActivations = result.nnActivations;
+    GUISTATE.gui.availableNNActivationFunctions = result.availableNNActivationFunctions;
     GUISTATE.gui.webotsSim = result.webotsSim;
     GUISTATE.gui.webotsUrl = result.webotsUrl;
     GUISTATE.gui.neuralNetwork = result.neuralNetwork === undefined ? false : result.neuralNetwork;
@@ -418,7 +418,7 @@ function setRobot(robot, result, opt_init) {
         $('#tabNNctxt').show();
         $('#menuTabNNctxt').show();
         $('#nn-activations').empty();
-        $.each(GUISTATE.gui.nnActivations, function (_, item) {
+        $.each(GUISTATE.gui.availableNNActivationFunctions, function (_, item) {
             $('#nn-activations').append(
                 $('<option>', {
                     value: item,
