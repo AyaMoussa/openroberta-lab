@@ -240,6 +240,7 @@ public class ProjectWorkflowRestController {
             response.setCmd("compileP");
             response.setProgXML(project.getAnnotatedProgramAsXml());
             addProjectResultToResponse(response, project);
+            response.setBinaryURL(project.getBinaryURL());
             final int programLength = StringUtils.countMatches(project.getAnnotatedProgramAsXml(), "<block ");
             Statistics.info("ProgramCompile", "LoggedIn", httpSessionState.isUserLoggedIn(), "success", project.hasSucceeded(), "programLength", programLength);
             return UtilForREST.responseWithFrontendInfo(response, httpSessionState, this.robotCommunicator);
@@ -328,11 +329,7 @@ public class ProjectWorkflowRestController {
             response.setCmd("reset");
             response.setProgramName(project.getProgramName());
             response.setCompiledCode(project.getCompiledHex());
-            try {
-                response.setBinaryURL(project.getBinaryURL());
-            }catch(DbcException e){
-                response.setBinaryURL("");
-            }
+            response.setBinaryURL(project.getBinaryURL());
             addProjectResultToResponse(response, project);
             Statistics.info("ProgramReset", "LoggedIn", httpSessionState.isUserLoggedIn(), "success", project.hasSucceeded());
             return UtilForREST.responseWithFrontendInfo(response, httpSessionState, this.robotCommunicator);
