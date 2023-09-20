@@ -55,6 +55,7 @@ let widthOfWholeNNDiv = 0;
 let inputNeuronNameEditingMode = false;
 let hiddenNeuronNameEditingMode = false;
 let outputNeuronNameEditingMode = false;
+
 let exploreType: ExploreType = null;
 
 let currentDebugLayer: number = 0;
@@ -65,6 +66,7 @@ let layersExplored = [];
 let isInputSet: boolean = false;
 let tabType: TabType = null;
 let inputNeuronValueEnteringMode: boolean = false;
+let inputNeuronValues: number[] = [];
 
 export function setupNN(stateFromStartBlock: any) {
     rememberProgramWasReplaced = false;
@@ -257,6 +259,7 @@ export async function runNNEditorForTabExplore(hasSim: boolean) {
 
     D3.select('#nn-explore-run-full').on('click', () => {
         exploreType = ExploreType.RUN;
+        network.setInputValuesFromArray(inputNeuronValues);
         network.forwardProp();
         currentDebugLayer = 0;
         currentDebugNodeIndex = 0;
@@ -275,6 +278,7 @@ export async function runNNEditorForTabExplore(hasSim: boolean) {
         } else {
             currentDebugLayer = networkImpl.length;
         }
+        network.setInputValuesFromArray(inputNeuronValues);
         network.forwardProp();
         currentDebugNodeIndex = 0;
         nodesExplored = [];
@@ -296,6 +300,7 @@ export async function runNNEditorForTabExplore(hasSim: boolean) {
         } else {
             currentDebugNodeIndex = flattenedNetwork.length;
         }
+        network.setInputValuesFromArray(inputNeuronValues);
         !state.inputs.includes(currentDebugNode.id) && currentDebugNode.updateOutput();
         currentDebugLayer = 0;
         layersExplored = [];
@@ -305,7 +310,7 @@ export async function runNNEditorForTabExplore(hasSim: boolean) {
 
     D3.select('#nn-explore-stop').on('click', () => {
         exploreType = ExploreType.STOP;
-        resetSelections();
+        resetSelections(false);
         D3.select('#nn-show-next-neuron').html('');
         hideAllCards();
         drawNetworkUIForTabExplore();
@@ -417,6 +422,7 @@ export function resetUiOnTerminate() {
 }
 
 export function reconstructNNIncludingUI() {
+    inputNeuronNameEditingMode = hiddenNeuronNameEditingMode = outputNeuronNameEditingMode = false;
     makeNetworkFromState();
     drawNetworkUIForTabDefine();
 }
@@ -882,6 +888,9 @@ function drawTheNetwork() {
                         return;
                     }
                     state.inputs.pop();
+                    if (state.inputs.length < inputNeuronValues.length) {
+                        inputNeuronValues.splice(-1, state.inputs.length);
+                    }
                     hideAllCards();
                     reconstructNNIncludingUI();
                 };
@@ -1146,7 +1155,7 @@ function hideAllCards() {
     }
 }
 
-export function resetSelections(): void {
+export function resetSelections(resetInputNeuronValueEnteringMode: boolean = true): void {
     exploreType = null;
     currentDebugLayer = 0;
     [currentDebugNode, currentDebugNodeIndex] = [null, 0];
@@ -1154,6 +1163,7 @@ export function resetSelections(): void {
     nodesExplored = [];
     layersExplored = [];
     isInputSet = false;
+    if (resetInputNeuronValueEnteringMode) inputNeuronValueEnteringMode = false;
 }
 
 function runNameCard(node: Node, coordinates: [number, number]) {
@@ -1237,7 +1247,16 @@ function runValueCard(node: Node, coordinates: [number, number]) {
         if (check) {
             network.setInputNeuronVal(node.id, Number(userInput.replace(',', '.')));
             network.setInputNeuronValForUI(node.id, userInput);
-            resetSelections();
+            let idx = network.getInputNames().indexOf(node.id);
+            if (idx == -1) {
+                inputNeuronValues.push(Number(userInput.replace(',', '.')));
+            } else if (idx > inputNeuronValues.length) {
+                let zeroArray = new Array(idx - inputNeuronValues.length).fill(0);
+                inputNeuronValues.splice(inputNeuronValues.length, 0, ...zeroArray, Number(userInput.replace(',', '.')));
+            } else {
+                inputNeuronValues.splice(idx, 1, Number(userInput.replace(',', '.')));
+            }
+            resetSelections(false);
             isInputSet = true;
             hideAllCards();
             drawNetworkUIForTabExplore();
@@ -1333,6 +1352,7 @@ function updateUI(tabSuffix: string) {
                 drawValuesBox(val, node.bias.get());
             }
         });
+        network.setInputValuesFromArray(inputNeuronValues);
         if (focusNode !== undefined && focusNode !== null) {
             D3.select('#nn-show-math').html(
                 focusNode.id + ' = ' + (state.inputs.includes(focusNode.id) ? focusNode.output : focusNode.genMath(state.activationKey))

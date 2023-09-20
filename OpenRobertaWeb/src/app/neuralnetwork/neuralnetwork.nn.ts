@@ -678,4 +678,14 @@ export class Network {
             }
         }
     }
+
+    public setInputValuesFromArray(inputValuesArray: number[]): void {
+        if (this.network != null && this.network.length > 0 && inputValuesArray.length > 0) {
+            let inputLayer: Node[] = this.network[0];
+            for (let i = 0; i < inputValuesArray.length && i < inputLayer.length; i += 1) {
+                inputLayer[i].output = inputValuesArray[i];
+                inputLayer[i].outputForUI = inputValuesArray[i].toString();
+            }
+        }
+    }
 }

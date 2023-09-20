@@ -96,6 +96,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
     var isInputSet = false;
     var tabType = null;
     var inputNeuronValueEnteringMode = false;
+    var inputNeuronValues = [];
     function setupNN(stateFromStartBlock) {
         rememberProgramWasReplaced = false;
         state = new neuralnetwork_uistate_1.State(stateFromStartBlock);
@@ -295,6 +296,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                         });
                         D3.select('#nn-explore-run-full').on('click', function () {
                             exploreType = ExploreType.RUN;
+                            network.setInputValuesFromArray(inputNeuronValues);
                             network.forwardProp();
                             currentDebugLayer = 0;
                             currentDebugNodeIndex = 0;
@@ -313,6 +315,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                             else {
                                 currentDebugLayer = networkImpl.length;
                             }
+                            network.setInputValuesFromArray(inputNeuronValues);
                             network.forwardProp();
                             currentDebugNodeIndex = 0;
                             nodesExplored = [];
@@ -334,6 +337,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                             else {
                                 currentDebugNodeIndex = flattenedNetwork.length;
                             }
+                            network.setInputValuesFromArray(inputNeuronValues);
                             !state.inputs.includes(currentDebugNode.id) && currentDebugNode.updateOutput();
                             currentDebugLayer = 0;
                             layersExplored = [];
@@ -342,7 +346,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                         });
                         D3.select('#nn-explore-stop').on('click', function () {
                             exploreType = ExploreType.STOP;
-                            resetSelections();
+                            resetSelections(false);
                             D3.select('#nn-show-next-neuron').html('');
                             hideAllCards();
                             drawNetworkUIForTabExplore();
@@ -453,6 +457,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
     }
     exports.resetUiOnTerminate = resetUiOnTerminate;
     function reconstructNNIncludingUI() {
+        inputNeuronNameEditingMode = hiddenNeuronNameEditingMode = outputNeuronNameEditingMode = false;
         makeNetworkFromState();
         drawNetworkUIForTabDefine();
     }
@@ -864,6 +869,9 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                             return;
                         }
                         state.inputs.pop();
+                        if (state.inputs.length < inputNeuronValues.length) {
+                            inputNeuronValues.splice(-1, state.inputs.length);
+                        }
                         hideAllCards();
                         reconstructNNIncludingUI();
                     };
@@ -1134,8 +1142,9 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
             valueCard.style('display', 'none');
         }
     }
-    function resetSelections() {
+    function resetSelections(resetInputNeuronValueEnteringMode) {
         var _a;
+        if (resetInputNeuronValueEnteringMode === void 0) { resetInputNeuronValueEnteringMode = true; }
         exploreType = null;
         currentDebugLayer = 0;
         _a = [null, 0], currentDebugNode = _a[0], currentDebugNodeIndex = _a[1];
@@ -1143,6 +1152,8 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
         nodesExplored = [];
         layersExplored = [];
         isInputSet = false;
+        if (resetInputNeuronValueEnteringMode)
+            inputNeuronValueEnteringMode = false;
     }
     exports.resetSelections = resetSelections;
     function runNameCard(node, coordinates) {
@@ -1221,7 +1232,18 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
             if (check) {
                 network.setInputNeuronVal(node.id, Number(userInput.replace(',', '.')));
                 network.setInputNeuronValForUI(node.id, userInput);
-                resetSelections();
+                var idx = network.getInputNames().indexOf(node.id);
+                if (idx == -1) {
+                    inputNeuronValues.push(Number(userInput.replace(',', '.')));
+                }
+                else if (idx > inputNeuronValues.length) {
+                    var zeroArray = new Array(idx - inputNeuronValues.length).fill(0);
+                    inputNeuronValues.splice.apply(inputNeuronValues, __spreadArray(__spreadArray([inputNeuronValues.length, 0], zeroArray, false), [Number(userInput.replace(',', '.'))], false));
+                }
+                else {
+                    inputNeuronValues.splice(idx, 1, Number(userInput.replace(',', '.')));
+                }
+                resetSelections(false);
                 isInputSet = true;
                 hideAllCards();
                 drawNetworkUIForTabExplore();
@@ -1315,6 +1337,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                     drawValuesBox(val, node.bias.get());
                 }
             });
+            network.setInputValuesFromArray(inputNeuronValues);
             if (focusNode !== undefined && focusNode !== null) {
                 D3.select('#nn-show-math').html(focusNode.id + ' = ' + (state.inputs.includes(focusNode.id) ? focusNode.output : focusNode.genMath(state.activationKey)));
             }
