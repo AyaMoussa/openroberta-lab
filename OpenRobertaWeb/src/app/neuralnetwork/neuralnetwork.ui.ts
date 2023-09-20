@@ -53,6 +53,7 @@ let heightOfWholeNNDiv = 0;
 let widthOfWholeNNDiv = 0;
 
 let inputNeuronNameEditingMode = false;
+let hiddenNeuronNameEditingMode = false;
 let outputNeuronNameEditingMode = false;
 let exploreType: ExploreType = null;
 
@@ -610,24 +611,31 @@ function drawTheNetwork() {
             mainRectAngle.attr('style', 'outline: medium solid #fbdc00;');
         }
         let theWholeNNSvgNode = D3.select(`#nn${tabSuffix}-svg`).node();
-        nodeGroup.on('click', function () {
-            if ((D3.event as any).shiftKey) {
+        nodeGroup
+            .on('dblclick', function () {
+                // works well in Chrome, not in Firefox...
                 tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
-            } else if (inputNeuronNameEditingMode && node.inputLinks.length === 0) {
-                tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
-            } else if (outputNeuronNameEditingMode && node.outputs.length === 0) {
-                tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
-            } else if (inputNeuronValueEnteringMode && node.inputLinks.length === 0) {
-                tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
-            } else {
-                if (focusNode == node) {
-                    focusNode = null;
+            })
+            .on('click', function () {
+                if ((D3.event as any).shiftKey) {
+                    tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
+                } else if (inputNeuronNameEditingMode && tabType === TabType.DEFINE && nodeType == NodeType.INPUT) {
+                    tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
+                } else if (hiddenNeuronNameEditingMode && nodeType == NodeType.HIDDEN) {
+                    tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
+                } else if (outputNeuronNameEditingMode && nodeType == NodeType.OUTPUT) {
+                    tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
+                } else if (inputNeuronValueEnteringMode && tabType === TabType.EXPLORE && nodeType == NodeType.INPUT) {
+                    tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
                 } else {
-                    focusNode = node;
+                    if (focusNode == node) {
+                        focusNode = null;
+                    } else {
+                        focusNode = node;
+                    }
+                    drawTheNetwork();
                 }
-                drawTheNetwork();
-            }
-        });
+            });
 
         let labelForId = nodeGroup.append('text').attr({
             class: 'main-label',
@@ -949,6 +957,27 @@ function drawTheNetwork() {
                     button.classed('active-output', true);
                 } else {
                     button.classed('active-output', false);
+                }
+            } else {
+                let button = firstRow.append('button');
+                button
+                    .attr('class', 'nn-btn nn-plus-minus-neuron-button')
+                    .on('click', () => {
+                        hiddenNeuronNameEditingMode = !hiddenNeuronNameEditingMode;
+                        if (hiddenNeuronNameEditingMode) {
+                            D3.event['target'].parentElement.classList.add('active-hidden');
+                            D3.event['target'].classList.add('active-hidden');
+                        } else {
+                            D3.event['target'].parentElement.classList.remove('active-hidden');
+                            D3.event['target'].classList.remove('active-hidden');
+                        }
+                    })
+                    .append('span')
+                    .attr('class', 'typcn typcn-edit');
+                if (hiddenNeuronNameEditingMode) {
+                    button.classed('active-hidden', true);
+                } else {
+                    button.classed('active-hidden', false);
                 }
             }
         } else if (tabType == TabType.EXPLORE) {

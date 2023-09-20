@@ -202,6 +202,10 @@ button#nn-type-cancel:hover, button#nn-name-cancel:hover, button#nn-value-cancel
     background-color: #BACC1E;
 }
 
+#nn-features .nn-plus-minus-neuron-button.active-hidden {
+    background-color: #c7b7b7;
+}
+
 #nn-features .nn-plus-minus-neuron-button.active-output {
     background-color: #f29400;
 }

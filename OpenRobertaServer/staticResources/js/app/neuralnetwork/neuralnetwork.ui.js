@@ -85,6 +85,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
     var heightOfWholeNNDiv = 0;
     var widthOfWholeNNDiv = 0;
     var inputNeuronNameEditingMode = false;
+    var hiddenNeuronNameEditingMode = false;
     var outputNeuronNameEditingMode = false;
     var exploreType = null;
     var currentDebugLayer = 0;
@@ -623,17 +624,25 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                 mainRectAngle.attr('style', 'outline: medium solid #fbdc00;');
             }
             var theWholeNNSvgNode = D3.select("#nn".concat(tabSuffix, "-svg")).node();
-            nodeGroup.on('click', function () {
+            nodeGroup
+                .on('dblclick', function () {
+                // works well in Chrome, not in Firefox...
+                tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
+            })
+                .on('click', function () {
                 if (D3.event.shiftKey) {
                     tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
                 }
-                else if (inputNeuronNameEditingMode && node.inputLinks.length === 0) {
+                else if (inputNeuronNameEditingMode && tabType === TabType.DEFINE && nodeType == NodeType.INPUT) {
                     tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
                 }
-                else if (outputNeuronNameEditingMode && node.outputs.length === 0) {
+                else if (hiddenNeuronNameEditingMode && nodeType == NodeType.HIDDEN) {
                     tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
                 }
-                else if (inputNeuronValueEnteringMode && node.inputLinks.length === 0) {
+                else if (outputNeuronNameEditingMode && nodeType == NodeType.OUTPUT) {
+                    tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
+                }
+                else if (inputNeuronValueEnteringMode && tabType === TabType.EXPLORE && nodeType == NodeType.INPUT) {
                     tabCallback && tabCallback(node, D3.mouse(theWholeNNSvgNode));
                 }
                 else {
@@ -935,6 +944,30 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
                     }
                     else {
                         button.classed('active-output', false);
+                    }
+                }
+                else {
+                    var button = firstRow.append('button');
+                    button
+                        .attr('class', 'nn-btn nn-plus-minus-neuron-button')
+                        .on('click', function () {
+                        hiddenNeuronNameEditingMode = !hiddenNeuronNameEditingMode;
+                        if (hiddenNeuronNameEditingMode) {
+                            D3.event['target'].parentElement.classList.add('active-hidden');
+                            D3.event['target'].classList.add('active-hidden');
+                        }
+                        else {
+                            D3.event['target'].parentElement.classList.remove('active-hidden');
+                            D3.event['target'].classList.remove('active-hidden');
+                        }
+                    })
+                        .append('span')
+                        .attr('class', 'typcn typcn-edit');
+                    if (hiddenNeuronNameEditingMode) {
+                        button.classed('active-hidden', true);
+                    }
+                    else {
+                        button.classed('active-hidden', false);
                     }
                 }
             }
