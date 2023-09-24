@@ -173,8 +173,7 @@ public class ProjectWorkflowRestController {
             .header("Content-Disposition", "attachment; filename=\"" + binaryFile.getName() + "\"")
             .build();
     }
-
-
+    
     @POST
     @Path("/stop")
     @Consumes(MediaType.APPLICATION_JSON)
