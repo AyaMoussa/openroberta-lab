@@ -55,7 +55,7 @@ import de.fhg.iais.roberta.util.syntax.FunctionNames;
 
 public class ExprlyVisitor extends ExprlyBaseVisitor<Expr> {
 
-    private static final BlocklyProperties BCMAKE = BlocklyProperties.make("Exprly", "1");
+    private static final BlocklyProperties BCMAKE = mkProperty("Exprly");
 
     /**
      * @return AST instance for the whole expression
@@ -91,28 +91,28 @@ public class ExprlyVisitor extends ExprlyBaseVisitor<Expr> {
         p.setReadOnly();
         q.setReadOnly();
         if ( ctx.op.getType() == ExprlyParser.AND ) {
-            return new Binary(Binary.Op.AND, p, q, "", BlocklyProperties.make("BINARY", "1"));
+            return new Binary(Binary.Op.AND, p, q, "", mkInlineProperty("math_arithmetic"));
         }
         if ( ctx.op.getType() == ExprlyParser.OR ) {
-            return new Binary(Binary.Op.OR, p, q, "", BlocklyProperties.make("BINARY", "1"));
+            return new Binary(Binary.Op.OR, p, q, "", mkInlineProperty("math_arithmetic"));
         }
         if ( ctx.op.getType() == ExprlyParser.EQUAL ) {
-            return new Binary(Binary.Op.EQ, p, q, "", BlocklyProperties.make("BINARY", "1"));
+            return new Binary(Binary.Op.EQ, p, q, "", mkInlineProperty("math_arithmetic"));
         }
         if ( ctx.op.getType() == ExprlyParser.NEQUAL ) {
-            return new Binary(Binary.Op.NEQ, p, q, "", BlocklyProperties.make("BINARY", "1"));
+            return new Binary(Binary.Op.NEQ, p, q, "", mkInlineProperty("math_arithmetic"));
         }
         if ( ctx.op.getType() == ExprlyParser.GET ) {
-            return new Binary(Binary.Op.GT, p, q, "", BlocklyProperties.make("BINARY", "1"));
+            return new Binary(Binary.Op.GT, p, q, "", mkInlineProperty("math_arithmetic"));
         }
         if ( ctx.op.getType() == ExprlyParser.LET ) {
-            return new Binary(Binary.Op.LT, p, q, "", BlocklyProperties.make("BINARY", "1"));
+            return new Binary(Binary.Op.LT, p, q, "", mkInlineProperty("math_arithmetic"));
         }
         if ( ctx.op.getType() == ExprlyParser.GEQ ) {
-            return new Binary(Binary.Op.GTE, p, q, "", BlocklyProperties.make("BINARY", "1"));
+            return new Binary(Binary.Op.GTE, p, q, "", mkInlineProperty("math_arithmetic"));
         }
         if ( ctx.op.getType() == ExprlyParser.LEQ ) {
-            return new Binary(Binary.Op.LTE, p, q, "", BlocklyProperties.make("BINARY", "1"));
+            return new Binary(Binary.Op.LTE, p, q, "", mkInlineProperty("math_arithmetic"));
         }
         throw new UnsupportedOperationException("Invalid binary operation");
 
@@ -134,19 +134,19 @@ public class ExprlyVisitor extends ExprlyBaseVisitor<Expr> {
             return new MathPowerFunct(BCMAKE, FunctionNames.POWER, args);
         }
         if ( ctx.op.getType() == ExprlyParser.ADD ) {
-            return new Binary(Binary.Op.ADD, n0, n1, "", BlocklyProperties.make("BINARY", "1"));
+            return new Binary(Binary.Op.ADD, n0, n1, "", mkInlineProperty("math_arithmetic"));
         }
         if ( ctx.op.getType() == ExprlyParser.SUB ) {
-            return new Binary(Binary.Op.MINUS, n0, n1, "", BlocklyProperties.make("BINARY", "1"));
+            return new Binary(Binary.Op.MINUS, n0, n1, "", mkInlineProperty("math_arithmetic"));
         }
         if ( ctx.op.getType() == ExprlyParser.MUL ) {
-            return new Binary(Binary.Op.MULTIPLY, n0, n1, "", BlocklyProperties.make("BINARY", "1"));
+            return new Binary(Binary.Op.MULTIPLY, n0, n1, "", mkInlineProperty("math_arithmetic"));
         }
         if ( ctx.op.getType() == ExprlyParser.DIV ) {
-            return new Binary(Binary.Op.DIVIDE, n0, n1, "", BlocklyProperties.make("BINARY", "1"));
+            return new Binary(Binary.Op.DIVIDE, n0, n1, "", mkInlineProperty("math_arithmetic"));
         }
         if ( ctx.op.getType() == ExprlyParser.MOD ) {
-            return new Binary(Binary.Op.MOD, n0, n1, "", BlocklyProperties.make("BINARY", "1"));
+            return new Binary(Binary.Op.MOD, n0, n1, "", mkInlineProperty("math_arithmetic"));
         }
         throw new UnsupportedOperationException("Invalid binary operation");
 
@@ -515,5 +515,13 @@ public class ExprlyVisitor extends ExprlyBaseVisitor<Expr> {
         Expr result = super.visitChildren(node);
         result.setReadOnly();
         return result;
+    }
+
+    private static BlocklyProperties mkInlineProperty(String type) {
+        return BlocklyProperties.make(type, "1", true);
+    }
+
+    private static BlocklyProperties mkProperty(String type) {
+        return BlocklyProperties.make(type, "1", false);
     }
 }

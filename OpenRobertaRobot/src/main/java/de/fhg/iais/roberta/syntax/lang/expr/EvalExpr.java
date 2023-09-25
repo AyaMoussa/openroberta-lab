@@ -123,14 +123,18 @@ public final class EvalExpr extends Expr {
 
     @Override
     public Block ast2xml() {
-        Block jaxbDestination = new Block();
-        Mutation mutation = new Mutation();
-        mutation.setType(this.type);
-        Ast2Jaxb.setBasicProperties(this, jaxbDestination);
-        Ast2Jaxb.addField(jaxbDestination, BlocklyConstants.TYPE, this.type);
-        Ast2Jaxb.addField(jaxbDestination, BlocklyConstants.EXPRESSION, this.expr);
-        jaxbDestination.setMutation(mutation);
-        return jaxbDestination;
+        if ( false ) {
+            Block jaxbDestination = new Block();
+            Mutation mutation = new Mutation();
+            mutation.setType(this.type);
+            Ast2Jaxb.setBasicProperties(this, jaxbDestination);
+            Ast2Jaxb.addField(jaxbDestination, BlocklyConstants.TYPE, this.type);
+            Ast2Jaxb.addField(jaxbDestination, BlocklyConstants.EXPRESSION, this.expr);
+            jaxbDestination.setMutation(mutation);
+            return jaxbDestination;
+        } else {
+            return this.exprBlock.ast2xml();
+        }
     }
 
     @SuppressWarnings("unchecked")

@@ -39,8 +39,7 @@ public class BlocklyProperties {
         Boolean inTask,
         Boolean shadow,
         Boolean errorAttribute,
-        Comment comment)
-    {
+        Comment comment) {
         Assert.isTrue(!blocklyId.equals("") && !blockType.equals(""));
         this.blockType = blockType;
         this.blocklyId = blocklyId;
@@ -60,7 +59,15 @@ public class BlocklyProperties {
      * <b>Main use: testing or textual representation of programs (because in this case no graphical regeneration is required.</b>
      */
     public static BlocklyProperties make(String blockType, String blocklyId) {
-        return new BlocklyProperties(blockType, blocklyId, false, false, false, false, false, true, false, false, null);
+        return BlocklyProperties.make(blockType, blocklyId, false);
+    }
+
+    /**
+     * factory method: create an object, that has a kind of blockly-related default properties.<br>
+     * <b>Main use: testing or textual representation of programs (because in this case no graphical regeneration is required.</b>
+     */
+    public static BlocklyProperties make(String blockType, String blocklyId, boolean inline) {
+        return new BlocklyProperties(blockType, blocklyId, false, false, inline, true, true, true, false, false, null);
     }
 
     public String getBlockType() {
