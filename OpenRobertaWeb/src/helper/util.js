@@ -111,6 +111,8 @@ function renameNeuron(oldName, newName) {
     }
 }
 
+export const activationDisplayName = { linear: 'Linear', relu: 'ReLU', tanh: 'Tanh', sigmoid: 'Sigmoid', bool: 'Bool(0,1)' };
+
 var ratioWorkspace = 1;
 var simRobotWindowPositions = [];
 /**

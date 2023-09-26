@@ -14,7 +14,6 @@ import * as NOTIFICATION_C from 'notification.controller';
 var LONG = 300000; // Ping time 5min
 var SHORT = 3000; // Ping time 3sec
 
-const activationDisplayName = { linear: 'Linear', relu: 'ReLU', tanh: 'Tanh', sigmoid: 'Sigmoid', bool: 'Bool(0,1)' };
 /**
  * Init robot
  */
@@ -426,7 +425,7 @@ function setRobot(robot, result, opt_init) {
             $('#nn-activations').append(
                 $('<option>', {
                     value: item,
-                    text: activationDisplayName[item],
+                    text: UTIL.activationDisplayName[item],
                 })
             );
         });

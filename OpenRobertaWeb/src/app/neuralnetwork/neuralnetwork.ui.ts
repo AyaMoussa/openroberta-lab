@@ -318,6 +318,8 @@ export async function runNNEditorForTabExplore(hasSim: boolean) {
 
     D3.select('#nn-show-next-neuron').html('');
 
+    D3.select('#nn-explore-show-activation').html(UTIL.activationDisplayName[state.activationKey]);
+
     // Listen for css-responsive changes and redraw the svg network.
     window.addEventListener('resize', () => {
         hideAllCards();
@@ -433,6 +435,7 @@ export function drawNetworkUIForTabExplore() {
     $('#nn-explore-focus [value="SHOW_ALL"]').text(MSG.get('NN_EXPLORE_SHOW_ALL'));
     $('#nn-show-math-label').text(MSG.get('NN_SHOW_MATH'));
     $('#nn-show-next-neuron-label').text(MSG.get('NN_EXPLORE_SHOW_NEXT_NEURON'));
+    $('#nn-explore-show-activation-label').text(MSG.get('NN_ACTIVATION'));
 
     drawTheNetwork();
 }

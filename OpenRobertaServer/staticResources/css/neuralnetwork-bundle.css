@@ -43,6 +43,11 @@
     flex-basis: 30%;
 }
 
+#nn-explore-show-activation {
+    width: 100px;
+    padding: 8px;
+}
+
 #nn-top-controls .nn-control .label {
     color: #777;
     font-size: 13px;
