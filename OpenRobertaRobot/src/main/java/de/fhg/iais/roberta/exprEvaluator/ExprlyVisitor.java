@@ -225,12 +225,12 @@ public class ExprlyVisitor extends ExprlyBaseVisitor<Expr> {
             }
         }
 
-        // check the function name and return the corresponfing one
+        // check the function name and return the corresponfing one math_random_float
         if ( f.equals("randInt") ) {
-            return new FunctionExpr(new MathRandomIntFunct(BCMAKE, args.get(0), args.get(1)));
+            return new FunctionExpr(new MathRandomIntFunct(mkProperty("math_random_int"), args.get(0), args.get(1)));
         }
         if ( f.equals("randFloat") ) {
-            return new FunctionExpr(new MathRandomFloatFunct(BCMAKE));
+            return new FunctionExpr(new MathRandomFloatFunct(mkProperty("math_random_float")));
         }
         if ( f.equals("sqrt") ) {
             f = "root";

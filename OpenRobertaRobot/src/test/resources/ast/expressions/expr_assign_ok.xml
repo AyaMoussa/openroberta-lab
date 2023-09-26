@@ -1,0 +1,49 @@
+<block_set xmlns="http://de.fhg.iais.roberta.blockly" robottype="nao" xmlversion="3.1" description="" tags="">
+    <instance x="98" y="31">
+        <block type="robControls_start" id=":iguG-ysvTUv_D4SMP4M" intask="true" deletable="false">
+            <mutation declare="true"/>
+            <field name="DEBUG">FALSE</field>
+            <statement name="ST">
+                <block type="robGlobalVariables_declare" id="+#/vM4d)jR8^@?qT!nU3" intask="true" deletable="false" movable="false">
+                    <mutation next="true" declaration_type="Number"/>
+                    <field name="VAR">x</field>
+                    <field name="TYPE">Number</field>
+                    <value name="VALUE">
+                        <block type="math_number" id="R1wms!wvS)ta`T:i:XJ]" intask="true">
+                            <field name="NUM">0</field>
+                        </block>
+                    </value>
+                </block>
+                <block type="robGlobalVariables_declare" id="ByP|rSpxx45j3t7HL~^*" intask="true" deletable="false" movable="false">
+                    <mutation next="false" declaration_type="Boolean"/>
+                    <field name="VAR">b</field>
+                    <field name="TYPE">Boolean</field>
+                    <value name="VALUE">
+                        <block type="logic_boolean" id="R~{rgHgvQQIAO51?RCQS" intask="true">
+                            <field name="BOOL">TRUE</field>
+                        </block>
+                    </value>
+                </block>
+            </statement>
+        </block>
+        <block type="variables_set" id="MPjsm%R)p6f[c%48MR^5" intask="true">
+            <mutation datatype="Number"/>
+            <field name="VAR">x</field>
+            <value name="VALUE">
+                <block type="math_arithmetic" id="0Dq5@FL?+w|.`3%mV;D^" intask="true">
+                    <field name="OP">ADD</field>
+                    <value name="A">
+                        <block type="math_number" id="f=W(^{eFf4H4z9]Ds,/U" intask="true">
+                            <field name="NUM">1</field>
+                        </block>
+                    </value>
+                    <value name="B">
+                        <block type="math_number" id="}2XA-?uIKw-Kdq3Q+:SW" intask="true">
+                            <field name="NUM">2</field>
+                        </block>
+                    </value>
+                </block>
+            </value>
+        </block>
+    </instance>
+</block_set>
