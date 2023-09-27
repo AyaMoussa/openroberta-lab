@@ -123,7 +123,7 @@ public final class EvalExpr extends Expr {
 
     @Override
     public Block ast2xml() {
-        if ( false ) {
+        if ( true ) {
             Block jaxbDestination = new Block();
             Mutation mutation = new Mutation();
             mutation.setType(this.type);

@@ -1,6 +1,7 @@
 package de.fhg.iais.roberta.visitor.validate;
 
 import java.util.HashMap;
+import java.util.List;
 
 import com.google.common.collect.ClassToInstanceMap;
 
@@ -18,6 +19,7 @@ import de.fhg.iais.roberta.syntax.lang.expr.BoolConst;
 import de.fhg.iais.roberta.syntax.lang.expr.ColorConst;
 import de.fhg.iais.roberta.syntax.lang.expr.EmptyExpr;
 import de.fhg.iais.roberta.syntax.lang.expr.EmptyList;
+import de.fhg.iais.roberta.syntax.lang.expr.EvalExpr;
 import de.fhg.iais.roberta.syntax.lang.expr.Expr;
 import de.fhg.iais.roberta.syntax.lang.expr.ExprList;
 import de.fhg.iais.roberta.syntax.lang.expr.ListCreate;
@@ -76,6 +78,9 @@ import de.fhg.iais.roberta.syntax.lang.stmt.TextAppendStmt;
 import de.fhg.iais.roberta.syntax.lang.stmt.WaitStmt;
 import de.fhg.iais.roberta.syntax.lang.stmt.WaitTimeStmt;
 import de.fhg.iais.roberta.typecheck.BlocklyType;
+import de.fhg.iais.roberta.typecheck.InfoCollector;
+import de.fhg.iais.roberta.typecheck.NepoInfo;
+import de.fhg.iais.roberta.typecheck.TypecheckCommonLanguageVisitor;
 import de.fhg.iais.roberta.util.syntax.FunctionNames;
 import de.fhg.iais.roberta.visitor.lang.ILanguageVisitor;
 
@@ -96,6 +101,17 @@ public abstract class CommonNepoValidatorAndCollectorVisitor extends AbstractVal
     @Override
     public Void visitAssertStmt(AssertStmt assertStmt) {
         requiredComponentVisited(assertStmt, assertStmt.asserts);
+        return null;
+    }
+
+    @Override
+    public Void visitEvalExpr(EvalExpr evalExpr) {
+        requiredComponentVisited(evalExpr, evalExpr.exprBlock);
+        TypecheckCommonLanguageVisitor.makeVisitorAndTypecheck(evalExpr.exprBlock);
+        List<NepoInfo> infosOfSubAst = InfoCollector.collectInfos(evalExpr);
+        if ( !infosOfSubAst.isEmpty() ) {
+            addErrorToPhrase(evalExpr, "PROGRAM_ERROR_EXPRBLOCK_TYPECHECK");
+        }
         return null;
     }
 
