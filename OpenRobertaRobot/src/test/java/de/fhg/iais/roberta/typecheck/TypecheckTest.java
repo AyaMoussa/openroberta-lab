@@ -1,10 +1,10 @@
-package de.fhg.iais.roberta;
+package de.fhg.iais.roberta.typecheck;
 
 import org.junit.Assert;
 import org.junit.Test;
 
+import de.fhg.iais.roberta.AstTest;
 import de.fhg.iais.roberta.syntax.Phrase;
-import de.fhg.iais.roberta.typecheck.TypecheckCommonLanguageVisitor;
 import de.fhg.iais.roberta.util.test.UnitTestHelper;
 
 public class TypecheckTest extends AstTest {
