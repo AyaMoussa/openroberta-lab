@@ -363,6 +363,10 @@ button.nn-btn:hover {
     color: #333;
 }
 
+.nn-table-popup {
+    display: none;
+    position: relative;
+}
 
 .nn-type-button {
     position: relative;
