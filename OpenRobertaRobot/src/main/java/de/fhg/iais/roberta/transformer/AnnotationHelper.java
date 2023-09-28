@@ -20,6 +20,7 @@ import de.fhg.iais.roberta.syntax.lang.expr.Expr;
 import de.fhg.iais.roberta.syntax.lang.expr.Var;
 import de.fhg.iais.roberta.syntax.sensor.ExternalSensor;
 import de.fhg.iais.roberta.transformer.forClass.NepoBasic;
+import de.fhg.iais.roberta.transformer.forClass.NepoConfiguration;
 import de.fhg.iais.roberta.transformer.forClass.NepoExpr;
 import de.fhg.iais.roberta.transformer.forClass.NepoPhrase;
 import de.fhg.iais.roberta.transformer.forField.NepoData;
@@ -54,6 +55,23 @@ public class AnnotationHelper {
             }
         }
         return false;
+    }
+
+    public static String[] getBlocklyNamesOfAstClass(Class<?> clazz) {
+        for ( Annotation anno : clazz.getAnnotations() ) {
+            if ( anno instanceof NepoBasic ) {
+                return ((NepoBasic) anno).blocklyNames();
+            } else if ( anno instanceof NepoConfiguration ) {
+                return ((NepoConfiguration) anno).blocklyNames();
+            } else if ( anno instanceof NepoExpr ) {
+                return ((NepoExpr) anno).blocklyNames();
+            } else if ( anno instanceof NepoPhrase ) {
+                return ((NepoPhrase) anno).blocklyNames();
+            } else {
+                throw new DbcException("invalid annotation for ast classes");
+            }
+        }
+        throw new DbcException("no annotation for ast classes");
     }
 
     /**
