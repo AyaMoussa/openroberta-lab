@@ -349,13 +349,13 @@ export class Network {
      * derivatives with respect to each node, and each weight
      * in the network.
      */
-    backProp(target: number, errorFunc: H.ErrorFunction): void {
+    backProp(target: number[], errorFunc: H.ErrorFunction = H.Errors.SQUARE): void {
         // The output node is a special case. We use the user-defined error
         // function for the derivative.
         let outputLayer = this.network[this.network.length - 1];
         for (let i = 0; i < outputLayer.length; i++) {
             let outputNode = outputLayer[i];
-            outputNode.outputDer = errorFunc.der(outputNode.output, target);
+            outputNode.outputDer = errorFunc.der(outputNode.output, target[i]);
         }
 
         // Go through the layers backwards.
@@ -441,6 +441,21 @@ export class Network {
                 }
             }
         }
+    }
+
+    getLoss(dataPoints: number[][]): number {
+        let loss = 0;
+        let outputLayer = this.network[this.network.length - 1];
+        dataPoints.forEach((inputOutputPair) => {
+            let inputsForLearning = inputOutputPair.slice(0, this.getInputNames().length);
+            let outputTargetValues = inputOutputPair.slice(this.getInputNames().length);
+            this.setInputValuesFromArray(inputsForLearning);
+            this.forwardProp();
+            outputLayer.forEach((outputNode, idx) => {
+                loss += Math.sqrt(H.Errors.SQUARE.error(outputNode.output, outputTargetValues[idx]));
+            });
+        });
+        return loss / dataPoints.length;
     }
 
     /** Iterates over every node in the network */

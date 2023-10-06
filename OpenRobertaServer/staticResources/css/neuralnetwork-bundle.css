@@ -43,7 +43,7 @@
     flex-basis: 30%;
 }
 
-#nn-explore-show-activation {
+#nn-explore-show-activation, #nn-learn-show-activation {
     width: 100px;
     padding: 8px;
 }
@@ -64,6 +64,18 @@
 
 #nn-top-controls .nn-control .select {
     position: relative;
+}
+
+.nn-input-div {
+    position: relative;
+    height: 36px;
+}
+
+.nn-learn-popup-input {
+    display: none;
+    position: absolute;
+    bottom: 50px;
+    left: 720px;
 }
 
 .nn-explore-btns, .nn-learn-btns {
@@ -186,35 +198,48 @@ button.nn-btn {
     color: #ffffff;
 }
 
-button#nn-type-plus, button#nn-type-minus, button#nn-value-plus, button#nn-value-minus, button#nn-type-finished, button#nn-name-finished, button#nn-value-finished, button#nn-type-cancel, button#nn-name-cancel, button#nn-value-cancel {
+button#nn-type-plus, button#nn-type-minus, button#nn-value-plus, button#nn-value-minus, button#nn-table-plus, button#nn-table-minus, button#nn-type-finished, button#nn-name-finished, button#nn-value-finished, button#nn-table-finished, button#nn-type-cancel, button#nn-name-cancel, button#nn-value-cancel, button#nn-table-cancel {
     width: 27px;
     height: 27px;
 }
 
-button#nn-type-cancel, button#nn-name-cancel, button#nn-value-cancel {
+button#nn-type-cancel, button#nn-name-cancel, button#nn-value-cancel, button#nn-table-cancel {
     background-color: #CD5C5C;
 }
 
-button#nn-type-cancel:hover, button#nn-name-cancel:hover, button#nn-value-cancel:hover {
+button#nn-type-cancel:hover, button#nn-name-cancel:hover, button#nn-value-cancel:hover, button#nn-table-cancel:hover {
     background-color: #E8C0C0;
 }
 
 #nn-features .nn-plus-minus-neuron-button.active-input {
     background-color: #BACC1E;
+    box-shadow: inset 0 0 2px 2px black;
 }
 
 #nn-explore-features .nn-input-value-button.active-input {
     background-color: #BACC1E;
+    box-shadow: inset 0 0 2px 2px black;
 }
 
 #nn-features .nn-plus-minus-neuron-button.active-hidden {
     background-color: #c7b7b7;
+    box-shadow: inset 0 0 2px 2px black;
 }
 
 #nn-features .nn-plus-minus-neuron-button.active-output {
     background-color: #f29400;
+    box-shadow: inset 0 0 2px 2px black;
 }
 
+#nn-training-data-upload {
+    display: none;
+}
+
+#nn-table-popup-wrapper {
+    overflow-y: auto;
+    max-height: 250px;
+    border: 1px solid lightgray;
+}
 
 button.nn-btn:hover {
     background-color: #ade7e4;
@@ -227,7 +252,6 @@ button.nn-btn:hover {
 
 #nn-top-controls .nn-num-layers-group {
     font-weight: bold;
-    margin-bottom: 4px;
 }
 
 #nn-features .nn-plus-minus-neurons .nn-plus-minus-neuron-button {
@@ -288,7 +312,14 @@ button.nn-btn:hover {
     cursor: pointer;
 }
 
-#nn-explore-features .core .nn-weight-click {
+.nn-input {
+    position: relative;
+    border: 2px solid #23b6ac;
+    height: 100%;
+    top: -4px;
+}
+
+#nn-explore-features .core .nn-weight-click, #nn-learn-features .core .nn-weight-click {
     stroke-width: 14;
     stroke: black;
     fill: none;
@@ -303,7 +334,7 @@ button.nn-btn:hover {
     cursor: pointer;
 }
 
-#nn-explore-features .core .nn-weight-show-click {
+#nn-explore-features .core .nn-weight-show-click, #nn-learn-features .core .nn-weight-show-click {
     stroke-width: 14;
     stroke: gray;
     fill: none;
@@ -365,7 +396,10 @@ button.nn-btn:hover {
 
 .nn-table-popup {
     display: none;
-    position: relative;
+    position: absolute;
+    bottom: 75px;
+    left: 675px;
+    width: auto;
 }
 
 .nn-type-button {
@@ -375,7 +409,6 @@ button.nn-btn:hover {
 
 .nn-shape-finished-button, .nn-learning-rate-finished-button, .nn-regularization-rate-finished-button {
     position: relative;
-    top: 4px;
     left: -4px;
 }
 

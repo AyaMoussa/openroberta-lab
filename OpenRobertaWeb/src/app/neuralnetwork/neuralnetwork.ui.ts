@@ -33,6 +33,12 @@ enum ExploreType {
     STOP,
 }
 
+enum LearnType {
+    RUN,
+    DEBUG,
+    STOP,
+}
+
 enum TabType {
     DEFINE,
     EXPLORE,
@@ -57,6 +63,7 @@ let hiddenNeuronNameEditingMode = false;
 let outputNeuronNameEditingMode = false;
 
 let exploreType: ExploreType = null;
+let learnType: LearnType = null;
 
 let currentDebugLayer: number = 0;
 let [currentDebugNode, currentDebugNodeIndex]: [Node, number] = [null, 0];
@@ -67,6 +74,11 @@ let isInputSet: boolean = false;
 let tabType: TabType = null;
 let inputNeuronValueEnteringMode: boolean = false;
 let inputNeuronValues: number[] = [];
+
+let inputsForLearningEnteringMode: boolean = false;
+let inputTableNumRows: number = 2;
+let userInputsForLearning: number[][] = [];
+let currentInputRowForLearning: number = 0;
 
 export function setupNN(stateFromStartBlock: any) {
     rememberProgramWasReplaced = false;
@@ -363,34 +375,122 @@ export async function runNNEditorForTabLearn(hasSim: boolean) {
     });
 
     D3.select('#nn-learn-run').on('click', () => {
-        exploreType = ExploreType.RUN;
-        network.forwardProp();
-        currentDebugLayer = 0;
-        currentDebugNodeIndex = 0;
+        learnType = LearnType.RUN;
+        let epoch = 0;
+        while (network.getLoss(userInputsForLearning) > 10) {
+            ++epoch;
+            userInputsForLearning.forEach((inputOutputPair) => {
+                let inputsForLearning = inputOutputPair.slice(0, state.inputs.length);
+                let outputTargetValues = inputOutputPair.slice(state.inputs.length);
+                network.setInputValuesFromArray(inputsForLearning);
+                network.forwardProp();
+                network.backProp(outputTargetValues);
+            });
+            network.updateWeights(state.learningRate, state.regularizationRate);
+        }
+        console.log('Epochs needed to train network: ' + epoch);
+        currentInputRowForLearning = 0;
         hideAllCards();
         drawNetworkUIForTabLearn();
     });
 
     D3.select('#nn-learn-debug').on('click', () => {
-        exploreType = ExploreType.LAYER;
-        isInputSet = true;
-        const networkImpl = network.getLayerAndNodeArray();
-        if (currentDebugLayer < networkImpl.length - 1) {
-            currentDebugLayer++;
-        } else {
-            currentDebugLayer = 1;
+        learnType = LearnType.DEBUG;
+        if (userInputsForLearning.length == 0) {
+            return;
         }
+        let inputsForLearning = userInputsForLearning[currentInputRowForLearning].slice(0, state.inputs.length);
+        let outputTargetValues = userInputsForLearning[currentInputRowForLearning].slice(state.inputs.length);
+        network.setInputValuesFromArray(inputsForLearning);
         network.forwardProp();
-        currentDebugNodeIndex = 0;
+        network.backProp(outputTargetValues);
+        network.updateWeights(state.learningRate, state.regularizationRate);
+        currentInputRowForLearning++;
+        if (currentInputRowForLearning >= userInputsForLearning.length) {
+            currentInputRowForLearning = 0;
+        }
         hideAllCards();
         drawNetworkUIForTabLearn();
     });
 
     D3.select('#nn-learn-stop').on('click', () => {
-        exploreType = ExploreType.STOP;
+        learnType = LearnType.STOP;
         isInputSet = false;
         hideAllCards();
         drawNetworkUIForTabLearn();
+    });
+
+    D3.select('#nn-learn-upload').on('click', () => {
+        let fileInputEl = $('#nn-training-data-upload');
+        fileInputEl.trigger('click');
+        fileInputEl.on('change', (e) => {
+            e && e.preventDefault();
+            let file = fileInputEl.prop('files')[0];
+            if (file) {
+                let fileReader = new FileReader();
+                fileReader.onload = function () {
+                    let data = fileReader.result;
+                    let inputData = UTIL.csvToArray(data);
+                    if ([...state.inputs, ...state.outputs].length != inputData[0].length) {
+                        console.error('Invalid training data uploaded');
+                    } else {
+                        userInputsForLearning = inputData;
+                    }
+                };
+                fileReader.readAsText(file);
+            }
+        });
+
+        hideAllCards();
+        drawNetworkUIForTabLearn();
+    });
+
+    D3.select('#nn-table-plus').on('click', () => {
+        inputTableNumRows++;
+        let currentUserInputs = tableToArray('#nn-table-user-input');
+        createUserInputTable(currentUserInputs);
+    });
+
+    D3.select('#nn-table-minus').on('click', () => {
+        if (inputTableNumRows > 1) {
+            inputTableNumRows--;
+        } else {
+            inputTableNumRows = 1;
+        }
+        let currentUserInputs = tableToArray('#nn-table-user-input');
+        createUserInputTable(currentUserInputs);
+    });
+
+    D3.select('#nn-table-finished').on('click', () => {
+        inputsForLearningEnteringMode = false;
+        currentInputRowForLearning = 0;
+        let tableDiv = D3.select('#nn-table-popup');
+        tableDiv.style('display', 'none');
+
+        userInputsForLearning = tableToArray('#nn-table-user-input');
+    });
+
+    const tableToArray = (tableId) =>
+        [...document.querySelector(tableId).rows].splice(1).map((row) => [...row.cells].map((cell) => cell.querySelector('input').value));
+
+    D3.select('#nn-table-cancel').on('click', () => {
+        inputsForLearningEnteringMode = false;
+        let tableDiv = D3.select('#nn-table-popup');
+        tableDiv.style('display', 'none');
+    });
+
+    D3.select('#nn-learn-upload-popup').on('click', () => {
+        if (!inputsForLearningEnteringMode) {
+            inputsForLearningEnteringMode = true;
+            if (userInputsForLearning.length == 0) {
+                inputTableNumRows = 2;
+                createUserInputTable();
+            } else {
+                createUserInputTable(userInputsForLearning);
+            }
+            hideAllCards();
+            drawNetworkUIForTabLearn();
+        }
     });
 
     D3.select('#nn-get-learning-rate').on('change', updateLearningRateListener);
@@ -401,9 +501,89 @@ export async function runNNEditorForTabLearn(hasSim: boolean) {
 
     D3.select('#nn-regularization-rate-finished-button').on('click', updateRegularizationRateListener);
 
-    function updateLearningRateListener() {}
+    D3.select('#nn-learn-show-activation').html(UTIL.activationDisplayName[state.activationKey]);
 
-    function updateRegularizationRateListener() {}
+    function updateLearningRateListener() {
+        state.learningRate = $('#nn-get-learning-rate').val() as number;
+    }
+
+    function updateRegularizationRateListener() {
+        state.regularizationRate = $('#nn-get-regularization-rate').val() as number;
+    }
+
+    function createUserInputTable(userInputs: number[][] = null) {
+        let tableDiv = D3.select('#nn-table-popup');
+        let tableEl = D3.select('#nn-table-user-input');
+
+        tableEl.selectAll('tr').remove();
+
+        tableDiv.style('display', 'block');
+        let tableHeaderRow = tableEl.append('tr');
+
+        let inputOutputNeurons: string[] = [...state.inputs, ...state.outputs];
+
+        // add table header
+        inputOutputNeurons.forEach((neuron) => {
+            tableHeaderRow
+                .append('th')
+                .html(neuron)
+                .style({ 'background-color': state.inputs.includes(neuron) ? '#8fa40280' : '#f2940080', position: 'sticky', top: 0 });
+        });
+
+        // add input in table rows
+        if (userInputs === null) {
+            for (let i = 0; i < inputTableNumRows; i++) {
+                let tableRow = tableEl.append('tr');
+                inputOutputNeurons.forEach((neuron, idx) => {
+                    let inputEl = tableRow
+                        .append('td')
+                        .append('input')
+                        .attr({
+                            id: `user-input-${neuron}`,
+                            value: 0,
+                        });
+                    inputEl.on('keydown', () => {
+                        let event = D3.event as any;
+                        inputEl.attr('value', event.target.value);
+                    });
+                });
+            }
+        } else {
+            for (let i = 0; i < userInputs.length; i++) {
+                let tableRow = tableEl.append('tr');
+                inputOutputNeurons.forEach((neuron, idx) => {
+                    let inputEl = tableRow
+                        .append('td')
+                        .append('input')
+                        .attr({
+                            id: `user-input-${neuron}`,
+                            value: userInputs[i][idx],
+                        });
+                    inputEl.on('keydown', () => {
+                        let event = D3.event as any;
+                        inputEl.attr('value', event.target.value);
+                    });
+                });
+            }
+            let rowsToBeAdded = inputTableNumRows - userInputs.length;
+            for (let i = 0; i < rowsToBeAdded && i >= 0; i++) {
+                let tableRow = tableEl.append('tr');
+                inputOutputNeurons.forEach((neuron, idx) => {
+                    let inputEl = tableRow
+                        .append('td')
+                        .append('input')
+                        .attr({
+                            id: `user-input-${neuron}`,
+                            value: 0,
+                        });
+                    inputEl.on('keydown', () => {
+                        let event = D3.event as any;
+                        inputEl.attr('value', event.target.value);
+                    });
+                });
+            }
+        }
+    }
 
     // Listen for css-responsive changes and redraw the svg network.
     window.addEventListener('resize', () => {
@@ -411,7 +591,15 @@ export async function runNNEditorForTabLearn(hasSim: boolean) {
         drawNetworkUIForTabLearn();
     });
 
+    let tableDiv = D3.select('#nn-table-popup');
+    tableDiv.style('display', 'none');
+
+    $('#nn-get-learning-rate').val(`${state.learningRate}`);
+
+    $('#nn-get-regularization-rate').val(`${state.regularizationRate}`);
+
     resetSelections();
+    learnType = LearnType.STOP;
     hideAllCards();
     makeNetworkFromState();
     drawNetworkUIForTabLearn();
@@ -446,6 +634,7 @@ export function drawNetworkUIForTabLearn() {
     $('#nn-learn-focus [value="SHOW_ALL"]').text(MSG.get('NN_EXPLORE_SHOW_ALL'));
     $('#nn-get-regularization-rate-label').text(MSG.get('regularization rate'));
     $('#nn-get-learning-rate-label').text(MSG.get('learning rate'));
+    $('#nn-learn-show-activation-label').text(MSG.get('NN_ACTIVATION'));
 
     drawTheNetwork();
 }
@@ -680,6 +869,14 @@ function drawTheNetwork() {
                 D3.select('#nn-show-next-neuron').html('');
             }
         }
+        if (tabType == TabType.LEARN) {
+            if (isInputSet && nodeType == NodeType.INPUT) {
+                drawNodeOutput(container, nodeGroup, node, NodeType.INPUT);
+            }
+            if ((learnType == LearnType.DEBUG || learnType == LearnType.RUN) && nodeType !== NodeType.OUTPUT) {
+                drawNodeOutput(container, nodeGroup, node, nodeType);
+            }
+        }
         // Draw the node's canvas.
         D3.select(`#nn${tabSuffix}-network`)
             .insert('div', ':first-child')
@@ -807,7 +1004,7 @@ function drawTheNetwork() {
         } else {
             nodeOutputForUI = node.output.toString();
         }
-        drawValue(nodeGroup, `out-${node.id}`, 4.5 * biasSize, nodeSize - 4.5 * biasSize, node.output, nodeOutputForUI, true);
+        drawValue(nodeGroup, `out-${node.id}-${tabSuffix}`, 4.5 * biasSize, nodeSize - 4.5 * biasSize, node.output, nodeOutputForUI, true);
     }
 
     function drawValue(
@@ -1167,6 +1364,7 @@ export function resetSelections(resetInputNeuronValueEnteringMode: boolean = tru
     layersExplored = [];
     isInputSet = false;
     if (resetInputNeuronValueEnteringMode) inputNeuronValueEnteringMode = false;
+    inputsForLearningEnteringMode = false;
 }
 
 function runNameCard(node: Node, coordinates: [number, number]) {

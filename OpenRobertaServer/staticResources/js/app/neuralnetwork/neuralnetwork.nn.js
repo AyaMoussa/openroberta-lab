@@ -340,12 +340,13 @@ define(["require", "exports", "./neuralnetwork.helper", "util"], function (requi
          * in the network.
          */
         Network.prototype.backProp = function (target, errorFunc) {
+            if (errorFunc === void 0) { errorFunc = H.Errors.SQUARE; }
             // The output node is a special case. We use the user-defined error
             // function for the derivative.
             var outputLayer = this.network[this.network.length - 1];
             for (var i = 0; i < outputLayer.length; i++) {
                 var outputNode = outputLayer[i];
-                outputNode.outputDer = errorFunc.der(outputNode.output, target);
+                outputNode.outputDer = errorFunc.der(outputNode.output, target[i]);
             }
             // Go through the layers backwards.
             for (var layerIdx = this.network.length - 1; layerIdx >= 1; layerIdx--) {
@@ -429,6 +430,21 @@ define(["require", "exports", "./neuralnetwork.helper", "util"], function (requi
                     }
                 }
             }
+        };
+        Network.prototype.getLoss = function (dataPoints) {
+            var _this = this;
+            var loss = 0;
+            var outputLayer = this.network[this.network.length - 1];
+            dataPoints.forEach(function (inputOutputPair) {
+                var inputsForLearning = inputOutputPair.slice(0, _this.getInputNames().length);
+                var outputTargetValues = inputOutputPair.slice(_this.getInputNames().length);
+                _this.setInputValuesFromArray(inputsForLearning);
+                _this.forwardProp();
+                outputLayer.forEach(function (outputNode, idx) {
+                    loss += Math.sqrt(H.Errors.SQUARE.error(outputNode.output, outputTargetValues[idx]));
+                });
+            });
+            return loss / dataPoints.length;
         };
         /** Iterates over every node in the network */
         Network.prototype.forEachNode = function (ignoreInputs, accessor) {

@@ -672,7 +672,7 @@ limitations under the License.
                 </div>
                 <div id='nn-get-shape-all' class='nn-control'>
                     <span id='nn-get-shape-label' class='nn-bold'></span>
-                    <div>
+                    <div class='nn-input-div'>
                         <input class='nn-input' id='nn-get-shape' />
                         <span class='nn-shape-finished-button'>
                             <button class='nn-btn' id='nn-shape-finished-button'>
@@ -849,6 +849,10 @@ limitations under the License.
                 </button>
                 <button class='nn-explore-btn' id='nn-learn-upload'>
                     <span class='typcn typcn-upload-outline'></span>
+                    <input type='file' id='nn-training-data-upload' />
+                </button>
+                <button class='nn-explore-btn' id='nn-learn-upload-popup'>
+                    <span class='typcn typcn-upload'></span>
                 </button>
             </div>
             <div id='nn-learn-top-controls'>
@@ -863,7 +867,7 @@ limitations under the License.
                 </div>
                 <div id='nn-get-learning-rate-all' class='nn-control'>
                     <span id='nn-get-learning-rate-label' class='nn-bold'></span>
-                    <div>
+                    <div class='nn-input-div'>
                         <input class='nn-input' id='nn-get-learning-rate' />
                         <span class='nn-learning-rate-finished-button'>
                             <button class='nn-btn' id='nn-learning-rate-finished-button'>
@@ -874,7 +878,7 @@ limitations under the License.
                 </div>
                 <div id='nn-get-regularization-rate-all' class='nn-control'>
                     <span id='nn-get-regularization-rate-label' class='nn-bold'></span>
-                    <div>
+                    <div class='nn-input-div'>
                         <input class='nn-input' id='nn-get-regularization-rate' />
                         <span class='nn-regularization-rate-finished-button'>
                             <button class='nn-btn' id='nn-regularization-rate-finished-button'>
@@ -883,42 +887,41 @@ limitations under the License.
                         </span>
                     </div>
                 </div>
-                <!--                <div class='nn-control'>-->
-                <!--                    <span id='nn-regularization-label' class='nn-bold'></span>-->
-                <!--                    <div class='select'>-->
-                <!--                        <select id='regularizations'>-->
-                <!--                            <option value='none'>None</option>-->
-                <!--                            <option value='L1'>L1</option>-->
-                <!--                            <option value='L2'>L2</option>-->
-                <!--                        </select>-->
-                <!--                    </div>-->
-                <!--                </div>-->
+                <div id='nn-learn-show-activation-function' class='nn-control'>
+                    <span id='nn-learn-show-activation-label' class='nn-bold'></span>
+                    <div id='nn-learn-show-activation' class='nn-selection'></div>
+                </div>
             </div>
             <div id='nn-learn-main-part'>
                 <div id='nn-learn-features'>
                     <div id='nn-learn-network'>
                         <svg id='nn-learn-svg'></svg>
-                        <div class='nn-table-popup'>
-                            <span class='nn-btn nn-type-button'>
-                                <button class='nn-btn' id='nn-table-plus'>
-                                    <span class='typcn typcn-plus'></span>
-                                </button>
-                            </span>
-                            <span class='nn-btn nn-type-button'>
-                                <button class='nn-btn' id='nn-table-minus'>
-                                    <span class='typcn typcn-minus'></span>
-                                </button>
-                            </span><span class='nn-type-button'>
-                                <button class='nn-btn' id='nn-table-finished'>
-                                    <span class='typcn typcn-tick'></span>
-                                </button>
-                            </span>
-                            <span class='nn-type-button'>
-                                <button class='nn-btn' id='nn-table-cancel'>
-                                    <span class='typcn typcn-cancel'></span>
-                                </button>
-                            </span>
-                            <table id='nn-table-user-input' border='1'></table>
+                        <div class='nn-table-popup' id='nn-table-popup'>
+                            <div id='nn-table-popup-buttons'>
+                                <span class='nn-btn nn-type-button'>
+                                    <button class='nn-btn' id='nn-table-plus'>
+                                        <span class='typcn typcn-plus'></span>
+                                    </button>
+                                </span>
+                                <span class='nn-btn nn-type-button'>
+                                    <button class='nn-btn' id='nn-table-minus'>
+                                        <span class='typcn typcn-minus'></span>
+                                    </button>
+                                </span>
+                                <span class='nn-type-button'>
+                                    <button class='nn-btn' id='nn-table-finished'>
+                                        <span class='typcn typcn-tick'></span>
+                                    </button>
+                                </span>
+                                <span class='nn-type-button'>
+                                    <button class='nn-btn' id='nn-table-cancel'>
+                                        <span class='typcn typcn-cancel'></span>
+                                    </button>
+                                </span>
+                            </div>
+                            <div id='nn-table-popup-wrapper'>
+                                <table id='nn-table-user-input' border='1'></table>
+                            </div>
                         </div>
                     </div>
                 </div>
