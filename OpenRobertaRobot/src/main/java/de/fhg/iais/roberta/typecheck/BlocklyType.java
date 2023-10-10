@@ -118,4 +118,13 @@ public enum BlocklyType {
         }
         throw new DbcException("Invalid variableType: " + variableType);
     }
+
+    public static BlocklyType getByBlocklyName(String blocklyName) {
+        for ( BlocklyType ap : BlocklyType.values() ) {
+            if ( ap.getBlocklyName().toUpperCase().equals(blocklyName.toUpperCase()) ) {
+                return ap;
+            }
+        }
+        throw new DbcException("Invalid blockly type name: " + blocklyName);
+    }
 }

@@ -106,8 +106,8 @@ public abstract class CommonNepoValidatorAndCollectorVisitor extends AbstractVal
 
     @Override
     public Void visitEvalExpr(EvalExpr evalExpr) {
-        requiredComponentVisited(evalExpr, evalExpr.exprBlock);
-        TypecheckCommonLanguageVisitor.makeVisitorAndTypecheck(evalExpr.exprBlock);
+        requiredComponentVisited(evalExpr, evalExpr.exprAsBlock);
+        TypecheckCommonLanguageVisitor.makeVisitorAndTypecheck(evalExpr.exprAsBlock, beanBuilders);
         List<NepoInfo> infosOfSubAst = InfoCollector.collectInfos(evalExpr);
         if ( !infosOfSubAst.isEmpty() ) {
             addErrorToPhrase(evalExpr, "PROGRAM_ERROR_EXPRBLOCK_TYPECHECK");
@@ -524,7 +524,7 @@ public abstract class CommonNepoValidatorAndCollectorVisitor extends AbstractVal
         if ( repeatStmt.expr.getKind().hasName("EXPR_LIST") ) {
             ExprList exprList = (ExprList) repeatStmt.expr;
             varName = ((Var) exprList.get().get(0)).name;
-            this.getBuilder(UsedHardwareBean.Builder.class).addDeclaredVariable(varName);
+            this.getBuilder(UsedHardwareBean.Builder.class).addDeclaredVariable(varName, BlocklyType.NUMBER);
             this.getBuilder(UsedHardwareBean.Builder.class).addInScopeVariable(varName);
         } else if ( repeatStmt.mode == RepeatStmt.Mode.FOR_EACH ) {
             varName = ((VarDeclaration) ((Binary) repeatStmt.expr).left).name;
@@ -636,7 +636,7 @@ public abstract class CommonNepoValidatorAndCollectorVisitor extends AbstractVal
             requiredComponentVisited(var, var.value);
         }
         this.getBuilder(UsedHardwareBean.Builder.class).addGlobalVariable(var.name);
-        this.getBuilder(UsedHardwareBean.Builder.class).addDeclaredVariable(var.name);
+        this.getBuilder(UsedHardwareBean.Builder.class).addDeclaredVariable(var.name, var.typeVar);
         this.getBuilder(UsedHardwareBean.Builder.class).addInScopeVariable(var.name);
         return null;
     }

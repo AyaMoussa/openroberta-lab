@@ -4,6 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import com.google.common.collect.ClassToInstanceMap;
+
+import de.fhg.iais.roberta.bean.IProjectBean;
+import de.fhg.iais.roberta.bean.UsedHardwareBean;
 import de.fhg.iais.roberta.syntax.Phrase;
 import de.fhg.iais.roberta.syntax.action.serial.SerialWriteAction;
 import de.fhg.iais.roberta.syntax.lang.blocksequence.Location;
@@ -14,6 +18,7 @@ import de.fhg.iais.roberta.syntax.lang.expr.BoolConst;
 import de.fhg.iais.roberta.syntax.lang.expr.ColorConst;
 import de.fhg.iais.roberta.syntax.lang.expr.EmptyExpr;
 import de.fhg.iais.roberta.syntax.lang.expr.EmptyList;
+import de.fhg.iais.roberta.syntax.lang.expr.EvalExpr;
 import de.fhg.iais.roberta.syntax.lang.expr.Expr;
 import de.fhg.iais.roberta.syntax.lang.expr.ExprList;
 import de.fhg.iais.roberta.syntax.lang.expr.FunctionExpr;
@@ -98,17 +103,19 @@ public class TypecheckCommonLanguageVisitor extends BaseVisitor<BlocklyType> imp
      * @param phrase to typecheck
      * @return the typecheck visitor (to get information about errors and the derived type)
      */
-    public static TypecheckCommonLanguageVisitor makeVisitorAndTypecheck(Phrase phrase) //
+    public static TypecheckCommonLanguageVisitor makeVisitorAndTypecheck(Phrase phrase, ClassToInstanceMap<IProjectBean.IBuilder> beanBuilders) //
     {
         Assert.notNull(phrase);
 
-        TypecheckCommonLanguageVisitor astVisitor = new TypecheckCommonLanguageVisitor(phrase);
+        TypecheckCommonLanguageVisitor astVisitor = new TypecheckCommonLanguageVisitor(phrase, beanBuilders);
         astVisitor.resultType = phrase.accept(astVisitor);
         return astVisitor;
     }
 
     private final int ERROR_LIMIT_FOR_TYPECHECK = 10;
 
+    private final ClassToInstanceMap<IProjectBean.IBuilder> beanBuilders;
+    private final UsedHardwareBean usedHardware;
     private final Phrase phrase;
     private List<NepoInfo> infos = null;
     private int errorCount = 0;
@@ -120,8 +127,10 @@ public class TypecheckCommonLanguageVisitor extends BaseVisitor<BlocklyType> imp
      *
      * @param phrase to typecheck
      */
-    TypecheckCommonLanguageVisitor(Phrase phrase) {
+    TypecheckCommonLanguageVisitor(Phrase phrase, ClassToInstanceMap<IProjectBean.IBuilder> beanBuilders) {
         this.phrase = phrase;
+        this.beanBuilders = beanBuilders;
+        this.usedHardware = (UsedHardwareBean) beanBuilders.get(UsedHardwareBean.Builder.class).build();
     }
 
     private void checkFor(Phrase phrase, boolean condition, String message) {
@@ -185,6 +194,12 @@ public class TypecheckCommonLanguageVisitor extends BaseVisitor<BlocklyType> imp
             paramTypes.add(param.accept(this));
         }
         return paramTypes;
+    }
+
+    public BlocklyType visitEvalExpr(EvalExpr evalExpr) {
+        BlocklyType typeOfEvalBlock = evalExpr.exprAsBlock.accept(this);
+        checkFor(evalExpr, evalExpr.type.equals(typeOfEvalBlock), "type of eval block doesn't match the expression");
+        return evalExpr.type;
     }
 
     @Override
@@ -589,7 +604,7 @@ public class TypecheckCommonLanguageVisitor extends BaseVisitor<BlocklyType> imp
 
     @Override
     public BlocklyType visitVar(Var var) {
-        return null;
+        return usedHardware.getTypeOfDeclaredVariable(var.name);
     }
 
     @Override

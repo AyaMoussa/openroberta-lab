@@ -621,7 +621,7 @@ public abstract class TransformerVisitor implements IVisitor<Phrase> {
 
     public Phrase visitEvalExpr(EvalExpr evalExpr) {
         try {
-            return EvalExpr.make(evalExpr.expr, evalExpr.type, evalExpr.getProperty());
+            return EvalExpr.make(evalExpr.exprAsString, evalExpr.type, evalExpr.getProperty());
         } catch ( Exception e ) {
             throw new DbcException("Could not modify EvalExpr!", e);
         }
