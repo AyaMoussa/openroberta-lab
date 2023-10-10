@@ -78,7 +78,37 @@ public class ExprlyVisitor extends ExprlyBaseVisitor<Expr> {
      */
     @Override
     public ColorConst visitCol(ExprlyParser.ColContext ctx) {
-        return new ColorConst(mkPropertyFromClass(ColorConst.class), ctx.COLOR().getText());
+        String colorText = ctx.COLOR().getText();
+        String colorHex;
+        switch ( colorText ) {
+            case "#black":
+                colorHex = "#000000";
+                break;
+            case "#blue":
+                colorHex = "#0057A6";
+                break;
+            case "#green":
+                colorHex = "#00642E";
+                break;
+            case "#yellow":
+                colorHex = "#F7D117";
+                break;
+            case "#red":
+                colorHex = "#B30006";
+                break;
+            case "#white":
+                colorHex = "#FFFFFF";
+                break;
+            case "#brown":
+                colorHex = "#532115";
+                break;
+            case "#NONW":
+                colorHex = "#585858";
+                break;
+            default:
+                colorHex = colorText;
+        }
+        return new ColorConst(mkInlineProperty("robColour_picker"), colorHex);
     }
 
     /**

@@ -125,6 +125,6 @@ public enum BlocklyType {
                 return ap;
             }
         }
-        throw new DbcException("Invalid blockly type name: " + blocklyName);
+        throw new DbcException("blockly type name is invalid: " + blocklyName);
     }
 }

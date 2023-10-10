@@ -27,11 +27,11 @@ expr     : NULL                                                      # NullConst
          | expr '?' expr ':' expr									                   # IfElseOp
          ; 
           
-literal  : INT                                                       # IntConst
+literal  : COLOR                                                     # Col
+         | INT                                                       # IntConst
          | FLOAT                                                     # FloatConst
          | BOOL                                                      # BoolConstB
          | '"'  (.*?|'.'|'?')  '"'                                   # ConstStr
-         | COLOR                                                     # Col
          | '[' (expr ',')* expr? ']'                                 # ListExpr
          ;
 
@@ -133,10 +133,18 @@ FLOAT   :    INT+ '.' INT*
         |    '.' INT+
         ;
 
+COLOR   : '#black'
+        | '#blue'
+        | '#green'
+        | '#yellow'
+        | '#red'
+        | '#white'
+        | '#brown'
+        | '#NONE'
+        | '#' HEX HEX HEX HEX HEX HEX
+        ;
 
 BOOL    :  'true' | 'false';
-
-COLOR   :  '#' HEX HEX HEX HEX HEX HEX;
 HEX     :  ('A'..'F'|'0'..'9');
 
 VAR     :  ('a'..'z')('a'..'z'|'A'..'Z'|'0'..'9'|'_')*;

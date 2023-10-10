@@ -383,7 +383,10 @@ public class TypecheckCommonLanguageVisitor extends BaseVisitor<BlocklyType> imp
 
     @Override
     public BlocklyType visitMathModuloFunct(MathModuloFunct mathModuloFunct) {
-        return null;
+        BlocklyType divisorType = mathModuloFunct.divisor.accept(this);
+        BlocklyType dividentType = mathModuloFunct.dividend.accept(this);
+        checkFor(mathModuloFunct, divisorType.equals(BlocklyType.NUMBER) && dividentType.equals(BlocklyType.NUMBER), "type number is expected");
+        return BlocklyType.NUMBER;
     }
 
     @Override
