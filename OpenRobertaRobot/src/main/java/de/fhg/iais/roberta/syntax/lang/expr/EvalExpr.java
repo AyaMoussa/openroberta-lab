@@ -65,7 +65,7 @@ public final class EvalExpr extends Expr {
             } else {
                 blocklyType = BlocklyType.ANY;
             }
-            this.exprAsBlock = new ListCreate(blocklyType, exprList, properties);
+            this.exprAsBlock = new ListCreate(blocklyType, exprList, mkInlineProperty("robLists_create_with"));
         } else {
             this.exprAsBlock = exprBlock;
         }
@@ -172,4 +172,9 @@ public final class EvalExpr extends Expr {
         ExprlyParser parser = new ExprlyParser(tokens);
         return parser;
     }
+
+    private static BlocklyProperties mkInlineProperty(String type) {
+        return BlocklyProperties.make(type, "1", true);
+    }
+
 }

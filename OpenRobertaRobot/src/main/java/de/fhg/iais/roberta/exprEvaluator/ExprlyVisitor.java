@@ -121,28 +121,28 @@ public class ExprlyVisitor extends ExprlyBaseVisitor<Expr> {
         p.setReadOnly();
         q.setReadOnly();
         if ( ctx.op.getType() == ExprlyParser.AND ) {
-            return new Binary(Binary.Op.AND, p, q, "", mkInlineProperty("math_arithmetic"));
+            return new Binary(Binary.Op.AND, p, q, "", mkInlineProperty("logic_operation"));
         }
         if ( ctx.op.getType() == ExprlyParser.OR ) {
-            return new Binary(Binary.Op.OR, p, q, "", mkInlineProperty("math_arithmetic"));
+            return new Binary(Binary.Op.OR, p, q, "", mkInlineProperty("logic_operation"));
         }
         if ( ctx.op.getType() == ExprlyParser.EQUAL ) {
-            return new Binary(Binary.Op.EQ, p, q, "", mkInlineProperty("math_arithmetic"));
+            return new Binary(Binary.Op.EQ, p, q, "", mkInlineProperty("logic_compare"));
         }
         if ( ctx.op.getType() == ExprlyParser.NEQUAL ) {
-            return new Binary(Binary.Op.NEQ, p, q, "", mkInlineProperty("math_arithmetic"));
+            return new Binary(Binary.Op.NEQ, p, q, "", mkInlineProperty("logic_compare"));
         }
         if ( ctx.op.getType() == ExprlyParser.GET ) {
-            return new Binary(Binary.Op.GT, p, q, "", mkInlineProperty("math_arithmetic"));
+            return new Binary(Binary.Op.GT, p, q, "", mkInlineProperty("logic_compare"));
         }
         if ( ctx.op.getType() == ExprlyParser.LET ) {
-            return new Binary(Binary.Op.LT, p, q, "", mkInlineProperty("math_arithmetic"));
+            return new Binary(Binary.Op.LT, p, q, "", mkInlineProperty("logic_compare"));
         }
         if ( ctx.op.getType() == ExprlyParser.GEQ ) {
-            return new Binary(Binary.Op.GTE, p, q, "", mkInlineProperty("math_arithmetic"));
+            return new Binary(Binary.Op.GTE, p, q, "", mkInlineProperty("logic_compare"));
         }
         if ( ctx.op.getType() == ExprlyParser.LEQ ) {
-            return new Binary(Binary.Op.LTE, p, q, "", mkInlineProperty("math_arithmetic"));
+            return new Binary(Binary.Op.LTE, p, q, "", mkInlineProperty("logic_compare"));
         }
         throw new UnsupportedOperationException("Invalid binary operation");
 
@@ -251,11 +251,23 @@ public class ExprlyVisitor extends ExprlyBaseVisitor<Expr> {
             if ( args.get(i) instanceof ExprList ) {
                 ExprList e = (ExprList) args.get(i);
                 e.setReadOnly();
-                args.set(i, new ListCreate(BlocklyType.ARRAY, e, mkPropertyFromClass(ListCreate.class)));
+                args.set(i, new ListCreate(BlocklyType.ARRAY, e, mkInlineProperty("robLists_create_with")));
             }
         }
 
         // check the function name and return the corresponfing one math_random_float
+        if ( f.equals("sin") || f.equals("cos") || f.equals("tan") || f.equals("asin") || f.equals("acos") || f.equals("atan") ) {
+            return new FunctionExpr(new MathSingleFunct(FunctionNames.get(f), args, mkInlineProperty("math_trig")));
+        }
+
+        if ( f.equals("exp") || f.equals("sqrt") || f.equals("abs") || f.equals("log10") || f.equals("ln") || f.equals("square") ) {
+            return new FunctionExpr(new MathSingleFunct(FunctionNames.get(f), args, mkInlineProperty("math_single")));
+        }
+
+        if ( f.equals("round") || f.equals("roundUp") || f.equals("roundDown") ) {
+            return new FunctionExpr(new MathSingleFunct(FunctionNames.get(f), args, mkInlineProperty("math_round")));
+        }
+
         if ( f.equals("randInt") ) {
             return new FunctionExpr(new MathRandomIntFunct(mkProperty("math_random_int"), args.get(0), args.get(1)));
         }
@@ -409,8 +421,7 @@ public class ExprlyVisitor extends ExprlyBaseVisitor<Expr> {
                 args0.addExpr(e);
             }
             args0.setReadOnly();
-            return new FunctionExpr(new TextJoinFunct(args0, mkPropertyFromClass(TextJoinFunct.class)));
-
+            return new FunctionExpr(new TextJoinFunct(args0, mkInlineProperty("robText_join")));
         }
         if ( f.equals("constrain") ) {
             return new FunctionExpr(new MathConstrainFunct(mkPropertyFromClass(MathConstrainFunct.class), args.get(0), args.get(1), args.get(2)));
@@ -467,7 +478,7 @@ public class ExprlyVisitor extends ExprlyBaseVisitor<Expr> {
             return new Unary(Unary.Op.PLUS, e, mkPropertyFromClass(Unary.class));
         }
         if ( ctx.op.getType() == ExprlyParser.SUB ) {
-            return new Unary(Unary.Op.NEG, e, mkPropertyFromClass(Unary.class));
+            return new Unary((Unary.Op.NEG), e, mkInlineProperty("math_single"));
         }
         throw new UnsupportedOperationException("Invalid unary operation");
     }
