@@ -263,16 +263,24 @@ limitations under the License.
                     class='menuTab'>Configuration</span>&nbsp;<span
                     id='tabConfigurationName'></span>
                 </a></li>
-                <li id='tabNNctxt' style='display: none;'>
-                    <a data-toggle='tab' id='tabNN' href='#nn'> <span lkey='Blockly.Msg.TAB_NN' class='menuTab'>Neural Network</span>&nbsp;<span
-                        id='tabNnName'>NEPOnn</span></a>
-                </li>
-                <li id='tabNNexplorectxt' style='display: none;'>
-                    <a data-toggle='tab' id='tabNNexplore' href='#nn-explore'> <span lkey='Blockly.Msg.TAB_NN_EXPLORE'
-                        class='menuTab'>Neural Network - Explore</span></a>
-                </li>
-                <li id='tabNNlearnctxt' style='display: none;'>
-                    <a data-toggle='tab' id='tabNNlearn' href='#nn-learn'> <span lkey='Blockly.Msg.TAB_NN_LEARN' class='menuTab'>Neural Network - Learn</span></a>
+                <li class='dropdown' style='position: fixed; left: 30em;'>
+                    <a class='dropdown-toggle' data-toggle='dropdown' href='#' role='button' aria-haspopup='true' aria-expanded='false'>
+                        <span lkey='Blockly.Msg.TAB_NN' class='menuTab'>Neural Network</span>&nbsp;
+                        <span id='tabNnName'>NEPOnn</span>&nbsp;
+                        <span class='caret'></span>
+                    </a>
+                    <ul class='dropdown-menu'>
+                        <li id='tabNNctxt' style='display: none;'>
+                            <a data-toggle='tab' id='tabNN' href='#nn'> <span lkey='Blockly.Msg.TAB_NN_DEFINE' class='menuTab'>Neural Network</span></a>
+                        </li>
+                        <li id='tabNNexplorectxt' style='display: none;'>
+                            <a data-toggle='tab' id='tabNNexplore' href='#nn-explore'> <span lkey='Blockly.Msg.TAB_NN_EXPLORE'
+                                class='menuTab'>Neural Network - Explore</span></a>
+                        </li>
+                        <li id='tabNNlearnctxt' style='display: none;'>
+                            <a data-toggle='tab' id='tabNNlearn' href='#nn-learn'> <span lkey='Blockly.Msg.TAB_NN_LEARN' class='menuTab'>Neural Network - Learn</span></a>
+                        </li>
+                    </ul>
                 </li>
                 <li class='hidden'><a data-toggle='tab' id='tabProgList' href='#progList'>Listing of programs</a></li>
                 <li class='hidden'><a data-toggle='tab' id='tabConfList' href='#confList'>Listing of configurations</a></li>

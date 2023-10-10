@@ -997,13 +997,7 @@ function drawTheNetwork() {
     }
 
     function drawNodeOutput(container: D3Selection, nodeGroup: D3Selection, node: Node, nodeType: NodeType): void {
-        let nodeOutputForUI: string = '';
-        if (nodeType == NodeType.INPUT) {
-            nodeOutputForUI =
-                node.outputForUI.endsWith(',') || node.outputForUI.endsWith('.') ? node.outputForUI.slice(0, node.outputForUI.length - 1) : node.outputForUI;
-        } else {
-            nodeOutputForUI = node.output.toString();
-        }
+        let nodeOutputForUI: string = node.output === 0 ? node.output.toString() : (Math.round(node.output * 100) / 100).toFixed(2).toString();
         drawValue(nodeGroup, `out-${node.id}-${tabSuffix}`, 4.5 * biasSize, nodeSize - 4.5 * biasSize, node.output, nodeOutputForUI, true);
     }
 

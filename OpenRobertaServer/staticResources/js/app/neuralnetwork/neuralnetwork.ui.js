@@ -979,14 +979,7 @@ define(["require", "exports", "./neuralnetwork.helper", "./neuralnetwork.nn", ".
             }
         }
         function drawNodeOutput(container, nodeGroup, node, nodeType) {
-            var nodeOutputForUI = '';
-            if (nodeType == NodeType.INPUT) {
-                nodeOutputForUI =
-                    node.outputForUI.endsWith(',') || node.outputForUI.endsWith('.') ? node.outputForUI.slice(0, node.outputForUI.length - 1) : node.outputForUI;
-            }
-            else {
-                nodeOutputForUI = node.output.toString();
-            }
+            var nodeOutputForUI = node.output === 0 ? node.output.toString() : (Math.round(node.output * 100) / 100).toFixed(2).toString();
             drawValue(nodeGroup, "out-".concat(node.id, "-").concat(tabSuffix), 4.5 * biasSize, nodeSize - 4.5 * biasSize, node.output, nodeOutputForUI, true);
         }
         function drawValue(container, id, x, y, valueForColor, valueToShow, forNodeOutput) {

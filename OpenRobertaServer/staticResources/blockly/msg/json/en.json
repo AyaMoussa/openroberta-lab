@@ -1,7 +1,7 @@
 {
 	"@metadata": {
 		"author": "Ellen Spertus <ellen.spertus@gmail.com>",
-		"lastupdated": "2023-09-15 13:03:19.049370",
+		"lastupdated": "2023-10-10 11:27:39.401505",
 		"locale": "en",
 		"messagedocumentation" : "qqq"
 	},
@@ -1931,7 +1931,8 @@
 	"AIFES_MAX_WEIGHT": "max weight",
 	"AIFES_MIN_WEIGHT": "min weight",
 	"AIFES_CONFIGURATION_ERROR_WRONG_VALUES": "One of the values in Aifes block is wrong",
-	"TAB_NN": "neural network - define",
+	"TAB_NN": "neural network",
+	"TAB_NN_DEFINE": "neural network - define",
 	"TAB_NN_EXPLORE": "neural network - explore",
 	"TAB_NN_LEARN": "neural network - learn",
 	"NN_STEP": "make one NN step",
