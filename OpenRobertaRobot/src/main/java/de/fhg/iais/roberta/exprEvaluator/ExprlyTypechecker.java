@@ -321,7 +321,7 @@ public class ExprlyTypechecker {
     private BlocklyType visitBinary(Binary binary) throws UnsupportedOperationException {
         // Get type of the operands
         BlocklyType tl = checkAST(binary.left);
-        BlocklyType tr = checkAST(binary.getRight());
+        BlocklyType tr = checkAST(binary.right);
 
         if ( tl.equals(BlocklyType.NOTHING) || tr.equals(BlocklyType.NOTHING) ) {
             addError(TcError.TcErrorMsg.UNEXPECTED_METHOD);

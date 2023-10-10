@@ -309,10 +309,10 @@ public class ReuseIntegrationAsUnitTest {
         checkAndShowTestResult();
     }
 
-    @Ignore
     @Test
+    @Ignore
     public void testOneRobotSpecificProgramAsUnitTests() throws Exception {
-        String robotName = "festobionic";
+        String robotName = "thymio";
         String programName = "action";
         LOG.info("========= testing program " + programName + " for robot " + robotName);
         final String resourceDirectory = setupRobotFactoryAndGetResourceDirForRobotSpecificTests(robotName);

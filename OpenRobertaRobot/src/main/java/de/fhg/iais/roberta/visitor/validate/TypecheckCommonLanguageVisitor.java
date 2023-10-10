@@ -1,4 +1,4 @@
-package de.fhg.iais.roberta.typecheck;
+package de.fhg.iais.roberta.visitor.validate;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,6 +86,11 @@ import de.fhg.iais.roberta.syntax.lang.stmt.WaitStmt;
 import de.fhg.iais.roberta.syntax.lang.stmt.WaitTimeStmt;
 import de.fhg.iais.roberta.syntax.sensor.generic.TimerReset;
 import de.fhg.iais.roberta.syntax.sensor.generic.TimerSensor;
+import de.fhg.iais.roberta.typecheck.BlocklyType;
+import de.fhg.iais.roberta.typecheck.InfoCollector;
+import de.fhg.iais.roberta.typecheck.NepoInfo;
+import de.fhg.iais.roberta.typecheck.Sig;
+import de.fhg.iais.roberta.typecheck.TypeTransformations;
 import de.fhg.iais.roberta.util.dbc.Assert;
 import de.fhg.iais.roberta.visitor.BaseVisitor;
 import de.fhg.iais.roberta.visitor.lang.ILanguageVisitor;
